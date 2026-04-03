@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html style="width: 100%; height: 100%;">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>3D Graph Control</title>
+        <link rel="stylesheet" href="styles.css">
+        <script type="importmap">
+            {
+                "imports": {
+                    "postprocessing": "https://esm.sh/postprocessing@6.37.1?dev&external=three",
+                    "postprocessing/": "https://esm.sh/postprocessing@6.37.1&dev&external=three/",
+                    "three": "https://esm.sh/three@0.161.0?dev",
+                    "three/": "https://esm.sh/three@0.161.0&dev/"
+                }
+            }
+        </script>
+
+        <!-- Primary Meta Tags -->
+        <meta name="title" content="3D Graph Control">
+        <meta name="description" content="hand gesture control for 3D force graph">
+
+        <!-- Open Graph / Facebook -->
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="https://funwithcomputervision.com/3d-graph/">
+        <meta property="og:title" content="3D Graph Control">
+        <meta property="og:description" content="hand gesture control for 3D force graph">
+        <meta property="og:image" content="https://funwithcomputervision.com/assets/3d-graph.png">
+
+        <!-- Twitter -->
+        <meta property="twitter:card" content="summary_large_image">
+        <meta property="twitter:url" content="https://funwithcomputervision.com/3d-graph/">
+        <meta property="twitter:title" content="3D Graph Control">
+        <meta property="twitter:description" content="hand gesture control for 3D force graph">
+        <meta property="twitter:image" content="https://funwithcomputervision.com/assets/3d-graph.png">
+
+        <script defer src="https://cloud.umami.is/script.js" data-website-id="376d8af4-cd09-461a-9ca9-f5eeed83e857"></script>
+
+    </head>
+    <body style="width: 100%; height: 100%; overflow: hidden; margin: 0;">
+        <div id="renderDiv" style="width: 100%; height: 100%; margin: 0;">
+            <!-- Video Element -->
+            <video id="videoElement" autoplay muted playsinline></video>
+            
+            <!-- Status Container -->
+            <div id="statusContainer">
+                <div id="statusText">STATUS</div>
+                <div id="restartHint">(click to restart tracking)</div>
+            </div>
+            
+            <!-- Speech Bubble -->
+            <div id="speechBubble">...</div>
+            
+            <!-- Force Graph Container -->
+            <div id="forceGraphContainer"></div>
+            
+            <!-- Interaction Mode Menu -->
+            <div id="interactionModeMenu">
+                <div class="mode-option active" id="mode-drag" data-mode="drag">Drag</div>
+                <div class="mode-option" id="mode-rotate" data-mode="rotate">Rotate</div>
+                <div class="mode-option" id="mode-zoom" data-mode="zoom">Zoom</div>
+            </div>
+            
+            <!-- Instructions Box -->
+            <div id="instructionsBox">
+                <div id="instructionsText">Pinch thumb and index finger together to grab and drag nodes</div>
+            </div>
+
+            <div id="logo-container" class="text-box">
+                <span id="logo">🪬</span><br>
+                <a href="https://www.funwithcomputervision.com/" target="_blank">code & tutorials</a>
+            </div>
+        </div>
+        
+        <script type="module" src="main.js"></script>
+    </body>
+</html>

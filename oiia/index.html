@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>OIIA cat rhythm game</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="OIIA cat rhythm game">
+    <meta name="description" content="oiiai oiiiai oiiai oiiiai">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://funwithcomputervision.com/oiia/">
+    <meta property="og:title" content="OIIA cat rhythm game">
+    <meta property="og:description" content="oiiai oiiiai oiiai oiiiai">
+    <meta property="og:image" content="https://funwithcomputervision.com/assets/oiia.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://funwithcomputervision.com/oiia/">
+    <meta property="twitter:title" content="OIIA cat rhythm game">
+    <meta property="twitter:description" content="oiiai oiiiai oiiai oiiiai">
+    <meta property="twitter:image" content="https://funwithcomputervision.com/assets/oiia.jpg">
+
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="376d8af4-cd09-461a-9ca9-f5eeed83e857"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cherry+Bomb+One&display=swap" rel="stylesheet">
+    
+    <!-- Preload essential scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    
+</head>
+<body>
+    <!-- Initial startup screen -->
+    <div id="startup-screen">
+        <button id="start-button" type="button">OIIA</button>
+    </div>
+
+    <!-- Loading indicator -->
+    <div id="loading-indicator">
+        Loading game...
+    </div>
+
+    <!-- Error message -->
+    <div id="error-message"></div>
+
+    <!-- Audio unlock message -->
+    <div id="audio-unlock-message">
+        <div>Tap to enable audio</div>
+        <button id="unlock-audio-button">Enable Audio</button>
+    </div>
+
+    <!-- Game container - hidden initially -->
+    <div id="game-container">
+        <video id="video" autoplay muted playsinline></video>
+        <div id="text-box"></div>
+        <canvas id="overlay"></canvas>
+        
+        <div id="stage-lights">
+            <div class="stage-light light-o" id="light-o"></div>
+            <div class="stage-light light-i" id="light-i"></div>
+            <div class="stage-light light-a" id="light-a"></div>
+        </div>
+        
+        <div id="model-container"></div>
+        
+        <div id="btn-o" class="button">O</div>
+        <div id="btn-i" class="button">I</div>
+        <div id="btn-a" class="button">A</div>
+        
+        <div id="music-note">🎵</div>
+
+        <div id="logo-container" class="text-box">
+            <a href="https://www.funwithcomputervision.com/" target="_blank">funwithcomputervision.com</a><br>
+        </div>
+    </div>
+
+</body>
+<script src="main.js"></script>
+</html>

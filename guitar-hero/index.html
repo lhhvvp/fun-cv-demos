@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guitar Hero</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200;400;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/meyda@5.6.3/dist/web/meyda.min.js"></script>
+
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="Guitar Hero">
+    <meta name="description" content="play chords, win points">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://funwithcomputervision.com/guitar-hero/">
+    <meta property="og:title" content="Guitar Hero">
+    <meta property="og:description" content="play chords, win points">
+    <meta property="og:image" content="https://funwithcomputervision.com/assets/guitar-hero.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://funwithcomputervision.com/guitar-hero/">
+    <meta property="twitter:title" content="Guitar Hero">
+    <meta property="twitter:description" content="play chords, win points">
+    <meta property="twitter:image" content="https://funwithcomputervision.com/assets/guitar-hero.png">
+
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="376d8af4-cd09-461a-9ca9-f5eeed83e857"></script>
+
+  <style>
+    body {
+      background-color: #050505;
+      color: #ffffff;
+      font-family: 'Oswald', sans-serif;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+    }
+    ::-webkit-scrollbar {
+      display: none;
+    }
+    .eva-grid {
+      background-image: 
+        linear-gradient(rgba(255, 107, 0, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 107, 0, 0.05) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+    .blue-grid-overlay {
+      background-image: 
+        linear-gradient(rgba(34, 211, 238, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(34, 211, 238, 0.03) 1px, transparent 1px);
+      background-size: 200px 200px;
+      pointer-events: none;
+    }
+    .hazard-pattern {
+      background: repeating-linear-gradient(
+        45deg,
+        #ff6b00,
+        #ff6b00 10px,
+        #000 10px,
+        #000 20px
+      );
+    }
+    .note-bar {
+      transition: height 0.05s ease-out, background-color 0.2s;
+    }
+    @keyframes alert-pulse {
+      0%, 100% { opacity: 0.1; }
+      50% { opacity: 0.3; }
+    }
+    .alert-bg {
+      animation: alert-pulse 2s infinite ease-in-out;
+    }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div id="root" class="eva-grid w-full h-full fixed inset-0">
+    <div class="blue-grid-overlay absolute inset-0"></div>
+    
+    <!-- START SCREEN -->
+    <div id="start-screen" class="fixed inset-0 flex flex-col items-center justify-center bg-black overflow-hidden z-50">
+      <!-- Liquid Background -->
+      <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div class="absolute inset-0 bg-black"></div>
+        <div class="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-orange-600/10 to-transparent alert-bg"></div>
+        <div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-red-600/10 to-transparent alert-bg" style="animation-delay: 1s"></div>
+        <div class="absolute top-1/2 left-0 w-full h-px bg-orange-600/20"></div>
+        <div class="absolute top-0 left-1/2 w-px h-full bg-orange-600/20"></div>
+        <div class="absolute top-10 left-10 border-l-4 border-t-4 border-orange-600 w-20 h-20 opacity-40"></div>
+        <div class="absolute bottom-10 right-10 border-r-4 border-b-4 border-orange-600 w-20 h-20 opacity-40"></div>
+      </div>
+      
+      <div class="z-10 text-center space-y-8 max-w-lg px-6 uppercase">
+        <h1 class="text-6xl font-black tracking-tighter text-orange-600 leading-none">
+          GUITAR HERO<br/><span class="text-white">PROJECT-01</span>
+        </h1>
+        
+        <div class="flex flex-col gap-4 items-center">
+          <div class="relative w-full max-w-xs group">
+            <label class="text-orange-500 text-[10px] tracking-[0.2em] font-bold mb-1 block text-left">
+              MODE
+            </label>
+            <select 
+              id="game-mode-select"
+              class="w-full bg-black border border-orange-900 text-cyan-400 text-lg font-bold py-3 px-4 uppercase tracking-wider focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-500 appearance-none hover:bg-orange-950/20 transition-colors"
+            >
+              <option value="random">RANDOM CHAOS</option>
+              <option value="karma_police">KARMA POLICE [RADIOHEAD]</option>
+            </select>
+            <div class="absolute right-4 top-[2.4rem] pointer-events-none text-orange-600">
+              ▼
+            </div>
+          </div>
+
+          <button 
+            id="start-button"
+            class="group relative px-12 py-4 bg-orange-600 text-black text-lg font-black tracking-[0.2em] overflow-hidden transition-all hover:bg-orange-500 hover:scale-105 active:scale-95 w-full max-w-xs"
+          >
+            START
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <div id="game-screen" class="hidden fixed inset-0 flex bg-black overflow-hidden select-none">
+      
+      <!-- Left 70% - Tactical Game View -->
+      <div class="w-[70%] h-full relative border-r border-orange-900/40 bg-black overflow-hidden">
+        <video 
+          id="video-feed"
+          autoplay 
+          playsinline 
+          muted 
+          class="absolute inset-0 w-full h-full object-cover scale-x-[-1] opacity-100 contrast-125 brightness-100 grayscale"
+        ></video>
+        
+        <!-- MAGI HUD Overlay -->
+        <div class="absolute inset-0 z-30 pointer-events-none p-4">
+          
+          <!-- Top HUD Cluster (Fretboard) -->
+          <div class="flex justify-between items-start relative z-50">
+            <div class="flex flex-col gap-4">
+              <!-- Upcoming Chord Diagram -->
+              <div id="chord-diagram" class="flex flex-col items-center bg-black/80 border border-cyan-500/30 p-4 w-40 backdrop-blur-md">
+                <div class="text-cyan-400 text-sm font-black tracking-widest uppercase mb-3 border-b border-cyan-500/50 w-full text-center pb-2">
+                  Next: <span id="diagram-chord-name">--</span>
+                </div>
+                <svg id="chord-svg" width="100" height="125" viewBox="0 0 100 125"></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Game Layer -->
+          <div class="absolute inset-0 z-40">
+            <!-- Hit Zone Rect -->
+            <div 
+              id="hit-zone"
+              class="absolute left-0 right-0 bg-orange-600/30 border-y border-orange-600/60"
+              style="top: 73%; height: 24%"
+            ></div>
+
+            <!-- Strum Line -->
+            <div 
+              id="strum-line"
+              class="absolute left-0 right-0 bg-orange-600 h-[4px] opacity-60"
+              style="top: 85%"
+            ></div>
+
+            <!-- Note Stream Container -->
+            <div id="note-container" class="absolute inset-0 flex justify-center overflow-hidden"></div>
+          </div>
+
+          <!-- Alert and HUD Layer -->
+          <div class="absolute inset-0 pointer-events-none z-50">
+            <!-- Hit Zone Label -->
+            <div 
+              id="hit-zone-label"
+              class="absolute left-8 text-[28px] font-black tracking-[0.3em] transition-colors uppercase text-yellow-400"
+              style="top: 77%"
+            >
+              HIT_ZONE
+            </div>
+
+            <!-- Miss Signal -->
+            <div id="miss-signal" class="absolute bottom-20 left-10 transition-all duration-300 opacity-0 translate-y-10">
+              <div class="bg-red-600 text-white px-8 py-4 text-6xl font-black italic tracking-tighter shadow-[0_0_30px_rgba(220,38,38,0.5)] uppercase">
+                MISS!
+              </div>
+            </div>
+
+            <!-- Score Counter -->
+            <div class="absolute top-10 right-10 text-right uppercase">
+              <div class="text-[24px] text-yellow-400 font-bold tracking-[0.2em] mb-1">SCORE</div>
+              <div id="score-display" class="text-7xl font-black transition-all duration-200 tabular-nums text-cyan-500">
+                0
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scanlines Overlay -->
+        <div class="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,107,0,0.01),rgba(34,211,238,0.01),rgba(255,107,0,0.01))] z-10 [background-size:100%_4px,3px_100%] opacity-30"></div>
+      </div>
+
+      <!-- Right 30% - Analysis Cluster -->
+      <div class="w-[30%] h-full flex flex-col bg-black relative">
+        
+        <!-- Chord Detection -->
+        <div class="flex-[1.5] border-b border-orange-900/40 flex flex-col items-center justify-center relative p-4">
+          <div class="absolute top-4 left-4 text-[12px] text-yellow-400 font-bold tracking-[0.3em] uppercase">CHORD_DETECTION</div>
+          <div class="absolute top-4 right-4 text-[10px] text-emerald-500 font-bold px-2 py-0.5 border border-emerald-500 bg-emerald-950/10 uppercase">
+            SYNC: <span id="confidence-display">0</span>%
+          </div>
+          
+          <div id="detected-chord" class="text-[12rem] font-black leading-none transition-all duration-150 text-orange-900/10 blur-xl scale-90">
+            --
+          </div>
+          
+          <div class="absolute bottom-4 left-4 right-4 h-1 bg-orange-900/20">
+            <div id="confidence-bar" class="h-full bg-emerald-500 transition-all duration-300" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Harmonic Spectrum -->
+        <div class="flex-1 border-b border-orange-900/40 flex flex-col relative bg-orange-950/5">
+          <div class="absolute top-4 left-4 text-[12px] text-yellow-400 font-bold tracking-[0.3em] uppercase">HARMONIC_SPECTRUM</div>
+          <div id="chroma-container" class="flex items-end justify-between w-full h-full gap-1 px-4 py-8"></div>
+        </div>
+
+        <!-- Audio Waveform -->
+        <div class="flex-1 flex flex-col relative bg-black p-4">
+          <div class="flex justify-between items-end mb-2">
+            <span class="text-[12px] text-yellow-400 font-bold tracking-[0.3em] uppercase">AUDIO_WAVEFORM</span>
+          </div>
+          <div class="w-full h-full px-4 py-8 bg-cyan-900/5">
+            <canvas id="waveform-canvas" width="800" height="200" class="w-full h-full"></canvas>
+          </div>
+        </div>
+
+        <!-- Pause Button -->
+        <button 
+          id="pause-button"
+          class="absolute bottom-4 right-4 z-50 text-red-600 text-[10px] font-black border border-red-600 px-3 py-1 hover:bg-red-600 hover:text-black transition-colors uppercase tracking-[0.1em] bg-black/50 backdrop-blur-sm"
+        >
+          PAUSE
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============ CONSTANTS ============
+    const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const GAME_CHORDS = ['G', 'C', 'D', 'Em', 'Am', 'E', 'A', 'F', 'Dm', 'Bm'];
+
+    const CHORD_DIAGRAM_DATA = {
+      'G': [3, 2, 0, 0, 0, 3],
+      'C': [null, 3, 2, 0, 1, 0],
+      'D': [null, null, 0, 2, 3, 2],
+      'Em': [0, 2, 2, 0, 0, 0],
+      'Am': [null, 0, 2, 2, 1, 0],
+      'E': [0, 2, 2, 1, 0, 0],
+      'A': [null, 0, 2, 2, 2, 0],
+      'F': [null, null, 3, 2, 1, 1],
+      'Dm': [null, null, 0, 2, 3, 1],
+      'Bm': [null, 2, 4, 4, 3, 2],
+    };
+
+    const KARMA_POLICE_SEQUENCE = [
+      { chord: 'Am', delay: 3200 },
+      { chord: 'D', delay: 3200 },
+      { chord: 'Em', delay: 3200 },
+      { chord: 'G', delay: 3200 },
+      { chord: 'Am', delay: 3200 },
+      { chord: 'F', delay: 3200 },
+      { chord: 'Em', delay: 3200 },
+      { chord: 'G', delay: 3200 },
+      { chord: 'Am', delay: 3200 },
+      { chord: 'D', delay: 3200 },
+      { chord: 'G', delay: 1600 },
+      { chord: 'C', delay: 1600 },
+      { chord: 'Bm', delay: 1600 },
+      { chord: 'D', delay: 3200 },
+      { chord: 'E', delay: 3200 },
+    ];
+
+    const STRUM_LINE_Y = 85;
+    const HIT_WINDOW_Y = 12;
+
+    // ============ CHORD TEMPLATES ============
+    const CHORD_TEMPLATES = {};
+    NOTE_NAMES.forEach((name, i) => {
+      const maj = new Array(12).fill(0);
+      [i, (i + 4) % 12, (i + 7) % 12].forEach(note => maj[note] = 1);
+      CHORD_TEMPLATES[name] = maj;
+
+      const min = new Array(12).fill(0);
+      [i, (i + 3) % 12, (i + 7) % 12].forEach(note => min[note] = 1);
+      CHORD_TEMPLATES[name + 'm'] = min;
+    });
+
+    // ============ CHORD DETECTOR CLASS ============
+    class LocalChordDetector {
+      constructor() {
+        this.audioContext = null;
+        this.source = null;
+        this.analyzer = null;
+        this.stream = null;
+        this.currentChroma = new Array(12).fill(0);
+        this.currentBuffer = new Float32Array(4096);
+        this.rms = 0;
+        this.lastChord = 'No Chord';
+        this.lastConfidence = 0;
+        this.MIN_STABILITY_CONFIDENCE = 80;
+        this.MIN_ACTIVATION_CONFIDENCE = 45;
+        this.SILENCE_THRESHOLD = 0.008;
+      }
+
+      async start(onChord) {
+        this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        this.audioContext = new AudioContext();
+        this.source = this.audioContext.createMediaStreamSource(this.stream);
+
+        this.analyzer = Meyda.createMeydaAnalyzer({
+          audioContext: this.audioContext,
+          source: this.source,
+          bufferSize: 4096,
+          featureExtractors: ['chroma', 'rms', 'buffer'],
+          callback: (features) => {
+            this.currentChroma = features.chroma;
+            this.currentBuffer = features.buffer;
+            this.rms = features.rms;
+
+            if (this.rms < this.SILENCE_THRESHOLD) {
+              this.lastChord = 'No Chord';
+              onChord({ chord: 'No Chord', confidence: 0 });
+              return;
+            }
+
+            const detected = this.matchChord(features.chroma);
+
+            if (detected.confidence < this.MIN_ACTIVATION_CONFIDENCE) {
+              onChord({ chord: 'No Chord', confidence: detected.confidence });
+              return;
+            }
+
+            if (detected.confidence < this.MIN_STABILITY_CONFIDENCE && this.lastChord !== 'No Chord') {
+              onChord({ chord: this.lastChord, confidence: this.lastConfidence });
+            } else {
+              this.lastChord = detected.chord;
+              this.lastConfidence = detected.confidence;
+              onChord(detected);
+            }
+          },
+        });
+
+        this.analyzer.start();
+      }
+
+      matchChord(chroma) {
+        let maxSimilarity = -1;
+        let bestChord = 'No Chord';
+
+        for (const [name, template] of Object.entries(CHORD_TEMPLATES)) {
+          let similarity = 0;
+          for (let i = 0; i < 12; i++) {
+            similarity += chroma[i] * template[i];
+          }
+          if (similarity > maxSimilarity) {
+            maxSimilarity = similarity;
+            bestChord = name;
+          }
+        }
+
+        const totalEnergy = chroma.reduce((a, b) => a + b, 0);
+        const confidence = totalEnergy > 0 ? (maxSimilarity / totalEnergy) * 100 : 0;
+
+        return {
+          chord: bestChord,
+          confidence: Math.min(100, confidence * 1.3)
+        };
+      }
+
+      stop() {
+        if (this.analyzer) this.analyzer.stop();
+        if (this.audioContext) this.audioContext.close();
+        if (this.stream) this.stream.getTracks().forEach(t => t.stop());
+        this.lastChord = 'No Chord';
+        this.lastConfidence = 0;
+      }
+    }
+
+    // ============ GAME STATE ============
+    const state = {
+      detector: new LocalChordDetector(),
+      gameMode: 'random',
+      score: 0,
+      gameNotes: [],
+      lastHitTime: 0,
+      gameStartTime: 0,
+      lastSpawnTime: 0,
+      sequenceIndex: 0,
+      nextSpawnInterval: 2000,
+      frameId: 0,
+      lastTime: performance.now(),
+      smoothedChroma: new Array(12).fill(0),
+      currentChord: null,
+      currentChordRef: null,
+      noteIdCounter: 0
+    };
+
+    // ============ DOM ELEMENTS ============
+    const els = {
+      startScreen: document.getElementById('start-screen'),
+      gameScreen: document.getElementById('game-screen'),
+      gameModeSelect: document.getElementById('game-mode-select'),
+      startButton: document.getElementById('start-button'),
+      pauseButton: document.getElementById('pause-button'),
+      videoFeed: document.getElementById('video-feed'),
+      chordDiagram: document.getElementById('chord-diagram'),
+      diagramChordName: document.getElementById('diagram-chord-name'),
+      chordSvg: document.getElementById('chord-svg'),
+      strumLine: document.getElementById('strum-line'),
+      hitZoneLabel: document.getElementById('hit-zone-label'),
+      missSignal: document.getElementById('miss-signal'),
+      scoreDisplay: document.getElementById('score-display'),
+      detectedChord: document.getElementById('detected-chord'),
+      confidenceDisplay: document.getElementById('confidence-display'),
+      confidenceBar: document.getElementById('confidence-bar'),
+      chromaContainer: document.getElementById('chroma-container'),
+      waveformCanvas: document.getElementById('waveform-canvas'),
+      noteContainer: document.getElementById('note-container')
+    };
+
+    // ============ CHORD DIAGRAM RENDERER ============
+    function renderChordDiagram(chordName) {
+      if (!chordName || !CHORD_DIAGRAM_DATA[chordName]) {
+        els.diagramChordName.textContent = '--';
+        els.chordSvg.innerHTML = '';
+        return;
+      }
+
+      els.diagramChordName.textContent = chordName;
+      const frets = CHORD_DIAGRAM_DATA[chordName];
+      const stringCount = 6;
+      const fretCount = 4;
+
+      let svg = '';
+      // Nut
+      svg += `<line x1="10" y1="25" x2="90" y2="25" stroke="#FF6B00" stroke-width="4" />`;
+      // Frets
+      for (let i = 0; i < fretCount; i++) {
+        svg += `<line x1="10" y1="${25 + (i + 1) * 25}" x2="90" y2="${25 + (i + 1) * 25}" stroke="#FF6B00" stroke-width="1.5" opacity="0.6" />`;
+      }
+      // Strings
+      for (let i = 0; i < stringCount; i++) {
+        svg += `<line x1="${10 + i * 16}" y1="25" x2="${10 + i * 16}" y2="125" stroke="#FF6B00" stroke-width="1.5" opacity="0.6" />`;
+      }
+      // Dots and Symbols
+      frets.forEach((fret, stringIndex) => {
+        const x = 10 + stringIndex * 16;
+        if (fret === null) {
+          svg += `<text x="${x}" y="18" fill="#ef4444" font-size="12" font-weight="bold" text-anchor="middle">X</text>`;
+        } else if (fret === 0) {
+          svg += `<circle cx="${x}" cy="15" r="5" stroke="#22d3ee" stroke-width="2" fill="none" />`;
+        } else {
+          svg += `<circle cx="${x}" cy="${25 + fret * 25 - 12.5}" r="7" fill="#22d3ee" stroke="#000" stroke-width="1" />`;
+        }
+      });
+
+      els.chordSvg.innerHTML = svg;
+    }
+
+    // ============ CHROMA VISUALIZER ============
+    function initChromaVisualizer() {
+      els.chromaContainer.innerHTML = '';
+      for (let i = 0; i < 12; i++) {
+        const col = document.createElement('div');
+        col.className = 'flex flex-col items-center flex-1 h-full';
+        col.innerHTML = `
+          <div class="flex-1 w-full flex items-end bg-orange-950/10">
+            <div class="note-bar w-full" id="chroma-bar-${i}" style="height: 2%; background-color: rgba(255, 107, 0, 0.2)"></div>
+          </div>
+          <span class="text-[10px] font-bold mt-1 transition-colors uppercase text-orange-900" id="chroma-label-${i}">${NOTE_NAMES[i]}</span>
+        `;
+        els.chromaContainer.appendChild(col);
+      }
+    }
+
+    function updateChromaVisualizer(chroma) {
+      for (let i = 0; i < 12; i++) {
+        const bar = document.getElementById(`chroma-bar-${i}`);
+        const label = document.getElementById(`chroma-label-${i}`);
+        const value = chroma[i];
+        const height = Math.max(2, Math.min(100, value * 100));
+        bar.style.height = `${height}%`;
+        bar.style.backgroundColor = value > 0.6 ? '#10b981' : 'rgba(255, 107, 0, 0.2)';
+        label.className = `text-[10px] font-bold mt-1 transition-colors uppercase ${value > 0.6 ? 'text-emerald-500' : 'text-orange-900'}`;
+      }
+    }
+
+    // ============ WAVEFORM RENDERER ============
+    function renderWaveform(buffer) {
+      const canvas = els.waveformCanvas;
+      const ctx = canvas.getContext('2d');
+      const width = canvas.width;
+      const height = canvas.height;
+
+      ctx.clearRect(0, 0, width, height);
+      ctx.beginPath();
+      ctx.strokeStyle = '#22d3ee';
+      ctx.lineWidth = 4;
+      ctx.lineCap = 'butt';
+
+      const sliceWidth = width / buffer.length;
+      let x = 0;
+
+      for (let i = 0; i < buffer.length; i++) {
+        const v = buffer[i];
+        const y = (v * height * 0.8) + (height / 2);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+        x += sliceWidth;
+      }
+      ctx.stroke();
+    }
+
+    // ============ NOTE RENDERER ============
+    function renderNotes() {
+      els.noteContainer.innerHTML = '';
+      
+      const now = performance.now();
+      
+      for (const note of state.gameNotes) {
+        const isInHitZone = !note.isHit && !note.isMissed && Math.abs(note.y - STRUM_LINE_Y) < HIT_WINDOW_Y;
+
+        // Calculate hit animation progress (0 to 1 over 1.2 seconds)
+        let hitProgress = 0;
+        if (note.isHit && note.hitAt) {
+          hitProgress = Math.min(1, (now - note.hitAt) / 1200);
+        }
+
+        // Easing function for smooth animation
+        const easeOutExpo = (t) => t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+        const easeOutQuart = (t) => 1 - Math.pow(1 - t, 4);
+        
+        const easedProgress = easeOutExpo(hitProgress);
+        const fadeProgress = easeOutQuart(hitProgress);
+
+        let borderStyles, textStyles, boxShadow, bgColor;
+        
+        if (note.isHit) {
+          // Animated glow intensity that pulses then fades
+          const glowIntensity = Math.sin(hitProgress * Math.PI) * (1 - hitProgress);
+          const glowSize = 60 + (glowIntensity * 140);
+          const innerGlow = 20 + (glowIntensity * 40);
+          
+          borderStyles = 'border-[#FFD700]';
+          textStyles = 'text-[#FFD700]';
+          boxShadow = `
+            0 0 ${glowSize}px rgba(255, 215, 0, ${0.8 * (1 - fadeProgress)}),
+            0 0 ${innerGlow}px rgba(255, 215, 0, ${1 * (1 - fadeProgress)}),
+            inset 0 0 ${innerGlow}px rgba(255, 215, 0, ${0.3 * (1 - fadeProgress)})
+          `;
+          bgColor = `rgba(255, 215, 0, ${0.3 * (1 - fadeProgress)})`;
+        } else if (isInHitZone) {
+          borderStyles = 'border-orange-600';
+          textStyles = 'text-orange-600';
+          boxShadow = '0 0 20px #ff6b00, 0 0 40px rgba(255, 107, 0, 0.3)';
+          bgColor = 'rgba(0, 0, 0, 0.9)';
+        } else {
+          borderStyles = 'border-white';
+          textStyles = 'text-white';
+          boxShadow = 'none';
+          bgColor = 'rgba(0, 0, 0, 0.8)';
+        }
+
+        // Calculate scale and opacity for hit animation
+        const scale = note.isHit ? 1 + (easedProgress * 2.5) : 1;
+        const opacity = note.isHit ? 1 - fadeProgress : 1;
+
+        const noteEl = document.createElement('div');
+        noteEl.className = 'absolute';
+        noteEl.style.cssText = `
+          top: ${note.y}%;
+          left: 50%;
+          transform: translate(-50%, -50%) scale(${scale});
+          opacity: ${opacity};
+          pointer-events: none;
+        `;
+
+        // Ring burst effect for hits
+        let ringEffect = '';
+        if (note.isHit && hitProgress < 0.8) {
+          const ringScale = 1 + (easedProgress * 4);
+          const ringOpacity = (1 - hitProgress) * 0.6;
+          ringEffect = `
+            <div class="absolute inset-0 border-2 border-[#FFD700] rounded-sm" style="
+              transform: scale(${ringScale});
+              opacity: ${ringOpacity};
+              pointer-events: none;
+            "></div>
+            <div class="absolute inset-0 border border-white rounded-sm" style="
+              transform: scale(${ringScale * 1.2});
+              opacity: ${ringOpacity * 0.5};
+              pointer-events: none;
+            "></div>
+          `;
+        }
+
+        noteEl.innerHTML = `
+          <div class="relative">
+            ${ringEffect}
+            <div class="px-8 py-3 border-4 flex flex-col items-center justify-center ${borderStyles}" style="
+              box-shadow: ${boxShadow};
+              background-color: ${bgColor};
+              ${note.isHit ? 'border-width: ' + (4 + hitProgress * 2) + 'px;' : ''}
+            ">
+              <span class="text-7xl font-black ${textStyles}" style="
+                ${note.isHit ? `
+                  text-shadow: 
+                    0 0 ${20 + (1 - fadeProgress) * 30}px rgba(255, 215, 0, ${1 - fadeProgress}),
+                    0 0 ${40 + (1 - fadeProgress) * 60}px rgba(255, 215, 0, ${0.5 * (1 - fadeProgress)});
+                ` : ''}
+              ">
+                ${note.chord}
+              </span>
+              ${note.isHit ? `
+                <span class="text-[10px] font-black text-[#FFD700] mt-1 uppercase tracking-[0.6em]" style="
+                  opacity: ${1 - fadeProgress};
+                  text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+                ">
+                  GOLDEN SYNC
+                </span>
+              ` : ''}
+            </div>
+          </div>
+        `;
+
+        els.noteContainer.appendChild(noteEl);
+      }
+    }
+
+    // ============ GAME LOOP ============
+    function updateUI() {
+      const now = performance.now();
+      const deltaTime = now - state.lastTime;
+      state.lastTime = now;
+
+      const sessionElapsed = now - state.gameStartTime;
+      const difficultyFactor = Math.min(1.0, sessionElapsed / 300000);
+      const currentVelocity = 0.012 + (0.018 * difficultyFactor);
+
+      // Smooth chroma
+      const ALPHA = 0.15;
+      const rawChroma = state.detector.currentChroma;
+      state.smoothedChroma = state.smoothedChroma.map((prev, i) => (prev * (1 - ALPHA)) + (rawChroma[i] * ALPHA));
+
+      // Update visualizers
+      updateChromaVisualizer(state.smoothedChroma);
+      renderWaveform(state.detector.currentBuffer);
+
+      // Spawn notes
+      if (now - state.lastSpawnTime > state.nextSpawnInterval) {
+        if (state.gameMode === 'random') {
+          const spawnDouble = Math.random() < (0.5 + (difficultyFactor * 0.3));
+          
+          const randomChord1 = GAME_CHORDS[Math.floor(Math.random() * GAME_CHORDS.length)];
+          state.gameNotes.push({
+            id: state.noteIdCounter++,
+            chord: randomChord1,
+            y: -15,
+            isHit: false,
+            isMissed: false
+          });
+
+          if (spawnDouble) {
+            const randomChord2 = GAME_CHORDS[Math.floor(Math.random() * GAME_CHORDS.length)];
+            state.gameNotes.push({
+              id: state.noteIdCounter++,
+              chord: randomChord2,
+              y: -15 - 55,
+              isHit: false,
+              isMissed: false
+            });
+          }
+          
+          state.nextSpawnInterval = 8500 - (4500 * difficultyFactor);
+        } else {
+          const stepIndex = state.sequenceIndex % KARMA_POLICE_SEQUENCE.length;
+          const step = KARMA_POLICE_SEQUENCE[stepIndex];
+
+          state.gameNotes.push({
+            id: state.noteIdCounter++,
+            chord: step.chord,
+            y: -15,
+            isHit: false,
+            isMissed: false
+          });
+
+          state.nextSpawnInterval = step.delay;
+          state.sequenceIndex++;
+        }
+        
+        state.lastSpawnTime = now;
+      }
+
+      // Update notes
+      state.gameNotes = state.gameNotes
+        .map(note => {
+          if (note.isHit) return note;
+
+          const newY = note.y + (deltaTime * currentVelocity);
+          
+          // Check for hit
+          if (!note.isHit && !note.isMissed && Math.abs(newY - STRUM_LINE_Y) < HIT_WINDOW_Y) {
+            if (state.currentChordRef === note.chord) {
+              state.score += 100;
+              state.lastHitTime = now;
+              
+              // Score flash
+              els.scoreDisplay.classList.add('text-white', 'scale-110');
+              els.scoreDisplay.classList.remove('text-cyan-500');
+              setTimeout(() => {
+                els.scoreDisplay.classList.remove('text-white', 'scale-110');
+                els.scoreDisplay.classList.add('text-cyan-500');
+              }, 200);
+              
+              els.scoreDisplay.textContent = state.score.toLocaleString();
+              return { ...note, y: STRUM_LINE_Y, isHit: true, hitAt: now };
+            }
+          }
+
+          // Check for miss
+          if (!note.isHit && !note.isMissed && newY > (STRUM_LINE_Y + HIT_WINDOW_Y)) {
+            els.missSignal.classList.remove('opacity-0', 'translate-y-10');
+            els.missSignal.classList.add('opacity-100', 'translate-y-0');
+            setTimeout(() => {
+              els.missSignal.classList.add('opacity-0', 'translate-y-10');
+              els.missSignal.classList.remove('opacity-100', 'translate-y-0');
+            }, 400);
+            return { ...note, y: newY, isMissed: true };
+          }
+
+          return { ...note, y: newY };
+        })
+        .filter(note => {
+          if (note.isHit) {
+            return (now - (note.hitAt || 0)) < 1500;
+          }
+          return note.y < 160;
+        });
+
+      // Update strum line flash
+      const isStrumFlashing = (now - state.lastHitTime) < 200;
+      if (isStrumFlashing) {
+        els.strumLine.className = 'absolute left-0 right-0 transition-all duration-300 bg-white h-[10px] shadow-[0_0_80px_rgba(255,255,255,1)] opacity-100';
+        els.hitZoneLabel.textContent = 'SUCCESS';
+        els.hitZoneLabel.classList.add('text-white');
+        els.hitZoneLabel.classList.remove('text-yellow-400');
+      } else {
+        els.strumLine.className = 'absolute left-0 right-0 transition-all duration-300 bg-orange-600 h-[4px] opacity-60';
+        els.hitZoneLabel.textContent = 'HIT_ZONE';
+        els.hitZoneLabel.classList.remove('text-white');
+        els.hitZoneLabel.classList.add('text-yellow-400');
+      }
+      els.strumLine.style.top = `${STRUM_LINE_Y}%`;
+
+      // Update chord diagram
+      const upcomingNote = state.gameNotes.find(n => !n.isHit && !n.isMissed);
+      renderChordDiagram(upcomingNote ? upcomingNote.chord : null);
+
+      // Render notes
+      renderNotes();
+
+      state.frameId = requestAnimationFrame(updateUI);
+    }
+
+    // ============ CHORD CALLBACK ============
+    function onChordDetected(data) {
+      state.currentChord = data;
+      state.currentChordRef = data.chord;
+
+      const isSilence = !data || data.chord === 'No Chord' || state.detector.rms < 0.005;
+
+      if (isSilence) {
+        els.detectedChord.textContent = '--';
+        els.detectedChord.className = 'text-[12rem] font-black leading-none transition-all duration-150 text-orange-900/10 blur-xl scale-90';
+      } else {
+        els.detectedChord.textContent = data.chord;
+        els.detectedChord.className = 'text-[12rem] font-black leading-none transition-all duration-150 text-orange-600';
+      }
+
+      els.confidenceDisplay.textContent = Math.round(data.confidence || 0);
+      els.confidenceBar.style.width = `${data.confidence || 0}%`;
+    }
+
+    // ============ START/STOP ============
+    async function startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        els.videoFeed.srcObject = stream;
+      } catch (e) {
+        console.error("Camera access denied", e);
+      }
+    }
+
+    async function handleStart() {
+      const startTime = performance.now();
+      state.score = 0;
+      state.gameNotes = [];
+      state.gameStartTime = startTime;
+      state.lastSpawnTime = startTime;
+      state.sequenceIndex = 0;
+      state.nextSpawnInterval = 2000;
+      state.lastTime = startTime;
+      state.smoothedChroma = new Array(12).fill(0);
+      state.noteIdCounter = 0;
+      state.gameMode = els.gameModeSelect.value;
+
+      els.scoreDisplay.textContent = '0';
+
+      try {
+        await startCamera();
+        await state.detector.start(onChordDetected);
+        
+        els.startScreen.classList.add('hidden');
+        els.gameScreen.classList.remove('hidden');
+        
+        initChromaVisualizer();
+        updateUI();
+      } catch (e) {
+        console.error(e);
+        alert('Error starting: ' + e.message);
+      }
+    }
+
+    function handleStop() {
+      state.detector.stop();
+      if (els.videoFeed.srcObject) {
+        els.videoFeed.srcObject.getTracks().forEach(t => t.stop());
+      }
+      cancelAnimationFrame(state.frameId);
+      
+      state.currentChord = null;
+      state.currentChordRef = null;
+      
+      els.startScreen.classList.remove('hidden');
+      els.gameScreen.classList.add('hidden');
+    }
+
+    // ============ EVENT LISTENERS ============
+    els.startButton.addEventListener('click', handleStart);
+    els.pauseButton.addEventListener('click', handleStop);
+  </script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Breaktime - Ramadan Edition</title>
+        <link rel="stylesheet" href="styles.css">
+
+        <!-- Primary Meta Tags -->
+        <meta name="title" content="Breaktime - Ramadan Edition">
+        <meta name="description" content="Hand-controlled music break — Arabic vibes, drum machine & visualizer. Ramadan Edition.">
+        <script type="importmap">
+            {
+                "imports": {
+                    "three": "https://esm.sh/three@0.161.0?dev",
+                    "three/": "https://esm.sh/three@0.161.0&dev/"
+                }
+            }
+        </script>
+    </head>
+    <body style="width: 100%; height: 100%; overflow: hidden; margin: 0;">
+        <div id="renderDiv" style="width: 100%; height: 100%; margin: 0; position: relative;">
+            <div id="lantern-glow" aria-hidden="true"></div>
+            <div id="ramadan-symbol" aria-hidden="true">
+                <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="ramadan-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#FFE082"/>
+                            <stop offset="100%" style="stop-color:#FFB74D"/>
+                        </linearGradient>
+                    </defs>
+                    <!-- Crescent -->
+                    <path fill="url(#ramadan-gold)" d="M60 20 A45 45 0 1 1 60 100 A35 35 0 1 0 60 20 z"/>
+                    <!-- Star -->
+                    <path fill="url(#ramadan-gold)" d="M60 32 L62 40 L70 40 L64 45 L66 53 L60 49 L54 53 L56 45 L50 40 L58 40 Z"/>
+                </svg>
+            </div>
+            <span id="info-text">Breaktime - Ramadan Edition</span>
+            <div id="social-links" class="text-box">
+                First hand controls the arpeggio notes; pinch to change volume, move up/down to change pitch<br>
+                Second hand controls the drums; lift fingers to change pattern
+            </div>
+
+        </div>
+        <script type="module" src="main.js"></script>
+    </body>
+</html>

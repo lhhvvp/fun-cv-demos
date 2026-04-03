@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hand Tracking Demo with Three.js</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <video id="webcam" autoplay playsinline></video>
+        <canvas id="canvas"></canvas>
+        <div id="three-canvas"></div>
+        <div id="status">Loading MediaPipe...</div>
+    </div>
+
+    <p id="links-para">
+        - Left hand: Pinch thumb and index finger to resize the 3D sphere<br>
+        - Right hand: Touch the sphere with your index finger to change its color
+    </p>
+
+    <a id="logo-link" href="https://www.funwithcomputervision.com/">
+        <span id="logo">🪬</span><br>
+        <span id="logo-subtitle">code & tutorial here</span>
+    </a>
+
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>

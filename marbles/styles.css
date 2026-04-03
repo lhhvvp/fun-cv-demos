@@ -1,0 +1,420 @@
+:root {
+  color-scheme: dark;
+  font-family: "Helvetica Neue", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  font-family: monospace;
+}
+
+body {
+  background: radial-gradient(circle at 20% 10%, #111628, #05060c 60%);
+  color: rgba(255, 255, 255, 0.85);
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  overflow: hidden;
+}
+
+#experience {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+#experience canvas {
+  width: 100vw;
+  height: 100dvh;
+  display: block;
+}
+
+.overlay {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  max-width: min(18rem, 20vw);
+  padding: 10px;
+  background: rgba(185, 185, 185, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  /* border-radius: 1.25rem; */
+  backdrop-filter: blur(14px);
+  box-shadow: 0 5px 10px rgba(6, 12, 28, 0.55);
+}
+
+.overlay h1 {
+  margin: 0;
+  font-size: clamp(1.0rem, 3vw, 2.0rem);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: black;
+}
+
+.overlay p {
+  margin: 0;
+  font-size: clamp(0.95rem, 2.2vw, 1.1rem);
+  color: rgba(255, 255, 255, 0.65);
+  letter-spacing: 0.06em;
+}
+
+.bottom-info {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(185, 185, 185, 0.42);
+  color: black;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 5px 10px rgba(6, 12, 28, 0.55);
+  z-index: 200;
+}
+
+.fps-counter {
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+  color: black;
+  letter-spacing: 0.05em;
+  min-width: 4rem;
+}
+
+.pause-button {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  /* border-radius: 0.35rem; */
+  padding: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: black;
+  transition: all 0.2s ease;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.pause-button:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(0, 0, 255, 0.6);
+  /* transform: scale(1.05); */
+}
+
+.pause-button:active {
+  transform: scale(0.95);
+}
+
+.pause-button svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.pause-button.paused svg {
+  display: none;
+}
+
+.pause-button.paused::before {
+  content: '';
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 8px 0 8px 14px;
+  border-color: transparent transparent transparent currentColor;
+  margin-left: 2px;
+}
+
+.camera-button {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  padding: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: black;
+  transition: all 0.2s ease;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.camera-button:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(0, 0, 255, 0.6);
+}
+
+.camera-button:active {
+  transform: scale(0.95);
+}
+
+.camera-button.active {
+  background: rgba(100, 180, 200, 0.3);
+  border-color: rgba(0, 26, 255, 0.6);
+}
+
+.camera-button svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.control-panel {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: min(16rem, 35vw);
+  background: rgba(185, 185, 185, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  /* border-radius: 1.35rem; */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 5px 10px rgba(6, 12, 28, 0.55);
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s ease, background 0.3s ease;
+  z-index: 200;
+}
+
+.control-panel.collapsed {
+  width: auto;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+  border: none;
+}
+
+.panel-toggle {
+  position: relative;
+  align-self: flex-end;
+  margin: 10px 10px 0 10px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  /* border-radius: 0.35rem; */
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: black;
+  transition: all 0.2s ease;
+  width: 2.5rem;
+  height: 2.5rem;
+  z-index: 200;
+}
+
+.control-panel.collapsed .panel-toggle {
+  margin: 0;
+  background: rgba(185, 185, 185, 0.42);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 5px 10px rgba(6, 12, 28, 0.55);
+}
+
+.panel-toggle:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(0, 0, 255, 0.6);
+}
+
+.panel-toggle:active {
+  transform: scale(0.95);
+}
+
+.panel-toggle svg {
+  transition: transform 0.3s ease;
+}
+
+.control-panel.collapsed .panel-toggle svg {
+  transform: rotate(90deg);
+}
+
+.panel-content {
+  padding: 0 10px 10px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  max-height: 600px;
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+  opacity: 1;
+}
+
+.control-panel.collapsed .panel-content {
+  max-height: 0;
+  opacity: 0;
+  padding: 0;
+}
+
+.control-panel h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: clamp(1.05rem, 2.4vw, 1.4rem);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.control {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.control-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.control-top label {
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.66);
+}
+
+.control-value {
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+  color: rgba(0, 0, 0, 0.9);
+}
+
+.palette-select {
+  width: 100%;
+  padding: 0.6rem 0.85rem;
+  background: rgba(124, 124, 124, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 0.35rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+  font-family: inherit;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.palette-select:hover {
+  background: rgba(30, 40, 60, 0.7);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.palette-select:focus {
+  border-color: rgba(123, 216, 255, 0.6);
+  box-shadow: 0 0 0 2px rgba(123, 216, 255, 0.15);
+}
+
+.palette-select option {
+  background: rgba(15, 20, 35, 0.95);
+  color: rgba(255, 255, 255, 0.9);
+  padding: 0.5rem;
+}
+
+.control-panel input[type="range"] {
+  width: 100%;
+  height: 0.35rem;
+  appearance: none;
+  background: linear-gradient(90deg, rgba(123, 216, 255, 0.55), rgba(161, 255, 207, 0.35));
+  border-radius: 999px;
+  outline: none;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.control-panel input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.95), rgba(157, 207, 255, 0.75));
+  box-shadow: 0 5px 10px rgba(20, 40, 80, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  margin-top: -0.1rem;
+}
+
+.control-panel input[type="range"]::-moz-range-track {
+  height: 0.35rem;
+  background: linear-gradient(90deg, rgba(123, 216, 255, 0.55), rgba(161, 255, 207, 0.35));
+  border-radius: 999px;
+}
+
+.control-panel input[type="range"]::-moz-range-thumb {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.95), rgba(157, 207, 255, 0.75));
+  box-shadow: 0 5px 10px rgba(20, 40, 80, 0.4);
+  border: none;
+}
+
+.control-panel input[type="range"]:focus-visible {
+  outline: 2px solid rgba(123, 216, 255, 0.7);
+  outline-offset: 4px;
+}
+
+@media (max-width: 600px) {
+
+  .panel-toggle {
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 6px;
+  }
+
+  .panel-toggle svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .fps-counter {
+    font-size: 0.85rem;
+    min-width: 3.5rem;
+  }
+
+  .pause-button {
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0.4rem;
+  }
+
+  .pause-button svg {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+
+  .camera-button {
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0.4rem;
+  }
+
+  .camera-button svg {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+
+  .control-panel h2 {
+    font-size: 0.95rem;
+    letter-spacing: 0.1em;
+  }
+
+  .control-top label {
+    font-size: 0.76rem;
+  }
+
+  .control-value {
+    font-size: 0.85rem;
+  }
+
+  .palette-select {
+    font-size: 0.85rem;
+    padding: 0.5rem 0.75rem;
+  }
+}

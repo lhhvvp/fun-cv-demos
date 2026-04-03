@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Watercolor</title>
+    <meta name="description" content="webgl shader with hand-tracking controls" />
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="Watercolor">
+    <meta name="description" content="webgl shader with hand-tracking controls">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://funwithcomputervision.com/watercolor/">
+    <meta property="og:title" content="Watercolor">
+    <meta property="og:description" content="webgl shader with hand-tracking controls">
+    <meta property="og:image" content="https://funwithcomputervision.com/assets/watercolor.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://funwithcomputervision.com/watercolor/">
+    <meta property="twitter:title" content="Watercolor">
+    <meta property="twitter:description" content="webgl shader with hand-tracking controls">
+    <meta property="twitter:image" content="https://funwithcomputervision.com/assets/watercolor.png">
+
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="376d8af4-cd09-461a-9ca9-f5eeed83e857"></script>
+
+  </head>
+  <body>
+
+    <div class="controls" id="controls">
+      <div class="controls-header" id="controlsHeader">
+        <h3>FLUID DYNAMICS</h3>
+        <button class="toggle-btn" id="toggleBtn"></button>
+      </div>
+
+      <div class="controls-content">
+        <div class="control-group">
+          <button id="handTrackingBtn" class="hand-tracking-btn">
+            START HAND TRACKING
+          </button>
+        </div>
+
+        <div class="control-group">
+          <label>
+            <span>Aspect Ratio</span>
+          </label>
+          <select id="aspectRatio" class="aspect-ratio-select">
+            <option value="fullscreen">Full Screen</option>
+            <option value="square">Square (1:1)</option>
+            <option value="landscape">Landscape (16:9)</option>
+            <option value="portrait">Portrait (9:16)</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="autoRotate" class="checkbox-input">
+            <span>Auto-Animate</span>
+          </label>
+        </div>
+
+        <div class="section-label">FLOW DYNAMICS</div>
+
+        <div class="control-group">
+          <label>
+            <span>Flow Speed</span>
+            <span class="value" id="flowSpeedValue">0.80</span>
+          </label>
+          <input type="range" id="flowSpeed" min="0.1" max="6.0" step="0.001" value="0.8" />
+        </div>
+
+        <div class="control-group">
+          <label>
+            <span>Turbulence</span>
+            <span class="value" id="turbulenceValue">0.30</span>
+          </label>
+          <input type="range" id="turbulence" min="0.0" max="5.0" step="0.001" value="0.3" />
+        </div>
+
+        <div class="control-group">
+          <label>
+            <span>Viscosity</span>
+            <span class="value" id="viscosityValue">0.50</span>
+          </label>
+          <input type="range" id="viscosity" min="0.01" max="1.0" step="0.001" value="0.5" />
+        </div>
+
+        <div class="control-group">
+          <label>
+            <span>Vorticity</span>
+            <span class="value" id="vorticityValue">0.40</span>
+          </label>
+          <input type="range" id="vorticity" min="0.0" max="2.0" step="0.001" value="0.4" />
+        </div>
+
+        <div class="control-group">
+          <label>
+            <span>Swirl Scale</span>
+            <span class="value" id="swirlScaleValue">2.00</span>
+          </label>
+          <input type="range" id="swirlScale" min="0.1" max="10.0" step="0.01" value="2.0" />
+        </div>
+
+        <div class="section-label">VISUAL STYLE</div>
+
+        <div class="control-group">
+          <label><span>Color Palette</span></label>
+          <select id="colorMode" class="aspect-ratio-select">
+            <option value="0">Monet Water Lilies</option>
+            <option value="1">Van Gogh Starry Night</option>
+            <option value="2">Renoir Garden</option>
+            <option value="3">Degas Ballet</option>
+            <option value="4">Cézanne Provence</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label>
+            <span>Color Intensity</span>
+            <span class="value" id="colorIntensityValue">1.20</span>
+          </label>
+          <input type="range" id="colorIntensity" min="0.3" max="3.0" step="0.001" value="1.2" />
+        </div>
+
+        <div class="control-group">
+          <label>
+            <span>Hue Shift</span>
+            <span class="value" id="hueShiftValue">0.00</span>
+          </label>
+          <input type="range" id="hueShift" min="0.0" max="6.28" step="0.001" value="0.0" />
+        </div>
+
+        <div class="control-group">
+          <label>
+            <span>Saturation</span>
+            <span class="value" id="saturationValue">1.50</span>
+          </label>
+          <input type="range" id="saturation" min="0.0" max="2.0" step="0.001" value="1.5" />
+        </div>
+
+        <div class="control-group">
+          <label>
+            <span>Brightness</span>
+            <span class="value" id="brightnessValue">1.20</span>
+          </label>
+          <input type="range" id="brightness" min="0.8" max="2.0" step="0.001" value="1.2" />
+        </div>
+
+        <div class="section-label">FIELD PROPERTIES</div>
+
+        <div class="control-group">
+          <label>
+            <span>Field Scale</span>
+            <span class="value" id="fieldScaleValue">1.00</span>
+          </label>
+          <input type="range" id="fieldScale" min="0.2" max="4.0" step="0.001" value="1.0" />
+        </div>
+
+        <div class="control-group">
+          <button id="randomizeBtn" class="randomize-btn">
+            RANDOMIZE ALL
+          </button>
+        </div>
+
+        <div class="fps-indicator">
+          <span>FPS</span>
+          <span class="fps-value" id="fpsValue">0</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="left-panel" id="leftPanel">
+      <!-- Webcam and hand tracking will be rendered here -->
+    </div>
+
+    <div class="right-panel" id="rightPanel">
+      <canvas id="glCanvas"></canvas>
+    </div>
+
+    <!-- MediaPipe Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+
+    <script src="main.js"></script>
+    <script src="handTracking.js"></script>
+    <script src="uiControls.js"></script>
+
+  </body>
+</html>

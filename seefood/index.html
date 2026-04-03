@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Seefood</title>
+        <link rel="stylesheet" href="styles.css">
+        <script type="importmap">
+            {
+                "imports": {
+                    "three": "https://esm.sh/three@0.161.0?dev",
+                    "three/": "https://esm.sh/three@0.161.0&dev/"
+                }
+            }
+        </script>
+
+        <!-- Primary Meta Tags -->
+        <meta name="title" content="Seefood">
+        <meta name="description" content="hot dog or not?">
+
+        <!-- Open Graph / Facebook -->
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="https://funwithcomputervision.com/seefood/">
+        <meta property="og:title" content="Seefood">
+        <meta property="og:description" content="hot dog or not?">
+        <meta property="og:image" content="https://funwithcomputervision.com/assets/seefood.webp">
+
+        <!-- Twitter -->
+        <meta property="twitter:card" content="summary_large_image">
+        <meta property="twitter:url" content="https://funwithcomputervision.com/seefood/">
+        <meta property="twitter:title" content="Seefood">
+        <meta property="twitter:description" content="hot dog or not?">
+        <meta property="twitter:image" content="https://funwithcomputervision.com/assets/seefood.webp">
+
+        <script defer src="https://cloud.umami.is/script.js" data-website-id="376d8af4-cd09-461a-9ca9-f5eeed83e857"></script>
+
+    </head>
+    <body>
+        <div id="renderDiv">
+
+            <div id="game-title" class="text-box">
+                <span>Department of Data Entry</span><br>
+                <img id="icon" src="assets/icon.png">
+            </div>
+
+            <div id="hot-dog-box">
+                Hot Dog
+            </div>
+
+            <div id="not-hot-dog-box">
+                Not Hot Dog
+            </div>
+
+            <div id="logo-container" class="text-box">
+                <span id="logo">🪬</span><br>
+                <a href="https://www.funwithcomputervision.com/" target="_blank">code & tutorials</a>
+            </div>
+
+            <video id="webcam-video" autoplay muted playsinline></video>
+
+            <!-- Game Over Overlay -->
+            <div id="game-over-overlay" class="hidden">
+                <div id="game-over-content">
+                    <!-- <h1>Hot Dogs Down</h1> -->
+                    <img src="assets/jianyang.jpg" id="game-over-image">
+                    <p>The Department of Data Entry appreciates your service.</p>
+                    <button id="restart-button">Start New Mission</button>
+                    <table id="link-table">
+                        <tr>
+                            <td><a href="https://x.com/measure_plan" target="_blank" rel="noopener"><img src="assets/bird.png" class="image-cell"></a></td>
+                            <td><a href="https://www.youtube.com/@funwithcomputervision" target="_blank" rel="noopener"><img src="assets/video.png" class="image-cell"></a></td>
+                            <td><a href="https://buymeacoffee.com/stereodrift" target="_blank" rel="noopener"><img src="assets/coffee.png" class="image-cell"></a></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+        <script type="module" src="main.js"></script>
+    </body>
+</html>

@@ -1,0 +1,135 @@
+[
+  {
+    "slug": "hand-tracking-101",
+    "title": "Hand Tracking 101",
+    "description": "Basic computer vision setup with Mediapipe hand tracking",
+    "thumbnail": "assets/1.png",
+    "entry": "index.html"
+  },
+  {
+    "slug": "shape-creator",
+    "title": "Shape Creator",
+    "description": "Create & control 3D shapes with hand gestures",
+    "thumbnail": "assets/2.png",
+    "entry": "index.html"
+  },
+  {
+    "slug": "3d-editor",
+    "title": "3D Editor",
+    "description": "Edit shape vertices in real-time",
+    "thumbnail": "assets/3.png",
+    "entry": "index.html"
+  },
+  {
+    "slug": "3d-model-playground",
+    "title": "3D Model Playground",
+    "description": "Control 3D models with voice + hand gestures",
+    "thumbnail": "assets/4.png",
+    "entry": "index.html"
+  },
+  {
+    "slug": "arpeggiator",
+    "title": "Arpeggiator",
+    "description": "Make music with your hands: arp + drum machine",
+    "thumbnail": "assets/5.png",
+    "entry": "index.html"
+  },
+  {
+    "slug": "handcrafted-shader",
+    "title": "Handcrafted Shader",
+    "description": "Control a liquid shader with voice + hand gestures",
+    "thumbnail": "handcrafted-shader/demo.png",
+    "entry": "index.html"
+  },
+  {
+    "slug": "the-floor-is-lava",
+    "title": "The Floor is Lava",
+    "description": "Jump around your living room and dodge lava",
+    "thumbnail": "the-floor-is-lava/assets/7.png",
+    "entry": "index.html"
+  },
+  {
+    "slug": "planet-explorer",
+    "title": "Planet Explorer",
+    "description": "Control a 3D globe with hand gestures",
+    "thumbnail": "planet-explorer/assets/planet-explorer.jpg",
+    "entry": "index.html"
+  },
+  {
+    "slug": "whirlpool-camera",
+    "title": "Whirlpool Camera",
+    "description": "Wave your hands to create webcam distortions",
+    "thumbnail": "whirlpool-camera/assets/whirlpool-camera.png",
+    "entry": "index.html"
+  },
+  {
+    "slug": "seefood",
+    "title": "SeeFood",
+    "description": "Classify hot dogs with hand tracking",
+    "thumbnail": "seefood/assets/seefood.webp",
+    "entry": "index.html"
+  },
+  {
+    "slug": "chinup",
+    "title": "Chin-Up Game",
+    "description": "Do a chin-up, save a cat",
+    "thumbnail": "chinup/assets/chinup.png",
+    "entry": "index.html"
+  },
+  {
+    "slug": "3d-graph",
+    "title": "3D Graph Control",
+    "description": "Control a 3D data viz with voice and hand gestures",
+    "thumbnail": "3d-graph/assets/3d-graph.png",
+    "entry": "index.html"
+  },
+  {
+    "slug": "snacker-news",
+    "title": "Snacker News",
+    "description": "Read Hacker News using speech + face recognition",
+    "thumbnail": "snacker-news/assets/snacker-news.png",
+    "entry": "index.html"
+  },
+  {
+    "slug": "laser-kitten",
+    "title": "Laser Kitten Defense",
+    "description": "Protect kittens with eye lasers",
+    "thumbnail": "laser-kitten/assets/laser-kitten.png",
+    "entry": "index.html"
+  },
+  {
+    "slug": "oiia",
+    "title": "OIIA Rhythm",
+    "description": "Make music, make the cat spin",
+    "thumbnail": "oiia/assets/oiia.jpg",
+    "entry": "index.html"
+  },
+  {
+    "slug": "radial",
+    "title": "Radial Instrument",
+    "description": "Make music with hand rotation",
+    "thumbnail": "radial/assets/radial.png",
+    "entry": "index.html"
+  },
+  {
+    "slug": "voxel",
+    "title": "Voxel Designer",
+    "description": "Design 3D patterns with hand movement",
+    "thumbnail": "voxel/assets/voxel.png",
+    "entry": "index.html"
+  },
+  {
+    "slug": "cat-cam",
+    "title": "Cat-Operated Photobooth",
+    "description": "Photobooth app that only works when a cat is detected",
+    "thumbnail": "cat-cam/assets/cat-cam.webp",
+    "entry": "index.html"
+  },
+  {
+    "slug": "marbles",
+    "title": "Marble Aquarium",
+    "description": "Glowing glass marbles bouncing in a cube",
+    "thumbnail": "marbles/assets/marbles.png",
+    "entry": "index.html"
+  }
+]

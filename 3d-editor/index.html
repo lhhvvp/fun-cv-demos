@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hand-Tracked Interactive Cube</title>
+  <link rel="stylesheet" href="styles.css">
+
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="3D Shape Editor">
+    <meta name="description" content="use hand gestures to edit 3D shapes">
+</head>
+<body>
+  <video id="webcam" autoplay playsinline></video>
+  <canvas id="canvas"></canvas>
+  <div id="three-canvas"></div>
+  <div id="color-control">
+    <canvas id="color-picker-canvas" width="150" height="150"></canvas>
+  </div>
+
+  <span id="links-para">
+    Instructions<br>
+    - right hand: pinch to grab / move a corner of the cube<br>
+    - pinch and drag in the color wheel<br>
+    - left hand: make a fist and move to rotate the shape
+  </span>
+
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+</body>
+
+<script src="main.js"></script>
+
+</html>

@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Slingshot Webcam</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne+Mono&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: #000;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+      touch-action: none;
+      overscroll-behavior: none;
+    }
+
+    .stage {
+      position: relative;
+      height: 95dvh;
+      width: min(95dvh, 95vw);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 2% 4%;
+      border: 1px solid #fff;
+    }
+
+    /* text bars — flex row so we can measure each word's exact bounding rect */
+    .text-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      font-family: 'Syne Mono', monospace;
+      font-weight: 700;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      line-height: 1;
+    }
+    /* clamp floors set below 1rem so font freely shrinks on narrow screens */
+    .text-bar.title    { font-size: clamp(0.9rem, 8vmin, 6.5rem); }
+    .text-bar.subtitle { font-size: clamp(0.75rem, 6vmin, 5rem); }
+
+    /* physics-driven word elements */
+    .text-word {
+      position: absolute;
+      font-family: 'Syne Mono', monospace;
+      font-weight: 700;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      line-height: 1;
+      white-space: nowrap;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      user-select: none;
+      z-index: 1;
+    }
+    .text-word.title    { font-size: clamp(0.9rem, 8vmin, 6.5rem); }
+    .text-word.subtitle { font-size: clamp(0.75rem, 6vmin, 5rem); }
+
+    #webcam-wrapper {
+      position: absolute;
+      width: 38%;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+      border: 2px solid transparent;
+      transition: border-color 80ms ease-out;
+    }
+    #webcam-wrapper.hit {
+      border-color: #ff0d1a;
+    }
+
+    #webcam {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      transform: scaleX(-1);
+    }
+
+    #overlay {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+    }
+
+    #no-cam {
+      position: absolute; inset: 0;
+      background: #1a00ff;
+      display: none;
+      align-items: center; justify-content: center;
+      font-family: 'Syne Mono', monospace;
+      font-size: 0.9rem; color: rgba(255,255,255,0.6);
+      text-align: center; padding: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="stage" id="stage">
+    <div class="text-bar title" id="text-title">
+      <span class="word">Slingshot</span>
+      <span class="word">Webcam</span>
+    </div>
+
+    <div id="webcam-wrapper">
+      <video id="webcam" autoplay playsinline muted></video>
+      <canvas id="overlay"></canvas>
+      <div id="no-cam">camera access required</div>
+    </div>
+
+    <div class="text-bar subtitle" id="text-subtitle">
+      <span class="word">Pinch</span>
+      <span class="word">&mdash;</span>
+      <span class="word">Aim</span>
+      <span class="word">&mdash;</span>
+      <span class="word">Fire</span>
+    </div>
+  </div>
+
+  <script>
+    // ── Constants ────────────────────────────────────────────────────────────
+    const PINCH_THRESHOLD  = 0.07;
+    const PINCH_ZONE       = 0.20;
+    const FRICTION         = 0.965;
+    const BOUNCE_WALL      = 0.65;
+    const LAUNCH_MULT      = 0.10;
+    const RESTITUTION      = 0.82;
+    const RESTITUTION_TEXT = 0.95;
+    const WALL_MARGIN_TEXT = 0;     // px padding from stage border for text
+    const SPAWN_INSET      = 80;   // px inset from stage edges for initial text placement
+    const MASS_CAM         = 3;
+    const MASS_TEXT        = 1;
+    const FLASH_DURATION   = 120;   // ms the red border stays on
+    const FLASH_COOLDOWN   = 250;   // ms before another flash can trigger
+    const DIM_AMOUNT       = 0.2;   // opacity removed per hit
+    const DIM_COOLDOWN     = 300;   // ms before the same word can be dimmed again
+
+    // ── DOM ──────────────────────────────────────────────────────────────────
+    const stage   = document.getElementById('stage');
+    const wrapper = document.getElementById('webcam-wrapper');
+    const video   = document.getElementById('webcam');
+    const overlay = document.getElementById('overlay');
+    const noCam   = document.getElementById('no-cam');
+
+    // ── Physics state ────────────────────────────────────────────────────────
+    let stageW, stageH, camSize;
+
+    // Webcam object (pos = centre in stage px)
+    const cam = {
+      pos: { x: 0, y: 0 },
+      vel: { x: 0, y: 0 },
+      get w() { return camSize; },
+      get h() { return camSize; },
+      mass: MASS_CAM
+    };
+
+    let textObjects = [];   // { pos, vel, w, h, mass, el }
+
+    // Hand-tracking state
+    let isPinching   = false;
+    let pinchCurrent = null;   // smoothed position used by physics/overlay
+    const PINCH_SMOOTH = 0.35; // exponential smoothing factor (lower = smoother)
+
+    // Collision flash state
+    let flashTimeout  = null;
+    let lastFlashTime = 0;
+
+    // ── Init ─────────────────────────────────────────────────────────────────
+    async function init() {
+      await document.fonts.ready;
+
+      stageW  = stage.clientWidth;
+      stageH  = stage.clientHeight;
+      camSize = wrapper.clientWidth;
+
+      overlay.width  = camSize;
+      overlay.height = camSize;
+
+      cam.pos.x = stageW / 2;
+      cam.pos.y = stageH / 2;
+      applyCamPos();
+
+      buildTextObjects();
+      requestAnimationFrame(loop);
+    }
+
+    // ── Build text physics objects from measured word positions ───────────────
+    function buildTextObjects() {
+      const stageRect = stage.getBoundingClientRect();
+
+      [
+        { barId: 'text-title',    cls: 'title' },
+        { barId: 'text-subtitle', cls: 'subtitle' }
+      ].forEach(({ barId, cls }) => {
+        const bar   = document.getElementById(barId);
+        const spans = bar.querySelectorAll('.word');
+
+        spans.forEach(span => {
+          const r  = span.getBoundingClientRect();
+          const rawCx = r.left - stageRect.left + r.width  / 2;
+          const rawCy = r.top  - stageRect.top  + r.height / 2;
+          const cx = Math.max(SPAWN_INSET + r.width  / 2, Math.min(stageW - SPAWN_INSET - r.width  / 2, rawCx));
+          const cy = Math.max(SPAWN_INSET + r.height / 2, Math.min(stageH - SPAWN_INSET - r.height / 2, rawCy));
+
+          const el = document.createElement('div');
+          el.className   = `text-word ${cls}`;
+          el.textContent = span.textContent;
+          el.style.left  = cx + 'px';
+          el.style.top   = cy + 'px';
+          stage.appendChild(el);
+
+          textObjects.push({
+            pos:         { x: cx, y: cy },
+            vel:         { x: 0,  y: 0  },
+            w:           r.width,
+            h:           r.height,
+            mass:        MASS_TEXT,
+            opacity:     1.0,
+            lastHitTime: 0,
+            el
+          });
+        });
+
+        bar.style.visibility = 'hidden';
+      });
+    }
+
+    // ── Main loop ────────────────────────────────────────────────────────────
+    function loop() {
+      // Webcam physics (paused while pinching)
+      if (!isPinching) {
+        cam.pos.x += cam.vel.x;
+        cam.pos.y += cam.vel.y;
+        cam.vel.x *= FRICTION;
+        cam.vel.y *= FRICTION;
+        wallBounce(cam.pos, cam.vel, camSize / 2, camSize / 2);
+        applyCamPos();
+      }
+
+      // Text physics (always active; skip dead words)
+      for (const t of textObjects) {
+        if (t.opacity <= 0) continue;
+        t.pos.x += t.vel.x;
+        t.pos.y += t.vel.y;
+        t.vel.x *= FRICTION;
+        t.vel.y *= FRICTION;
+        if (Math.abs(t.vel.x) < 0.05) t.vel.x = 0;
+        if (Math.abs(t.vel.y) < 0.05) t.vel.y = 0;
+        wallBounce(t.pos, t.vel, t.w / 2, t.h / 2, WALL_MARGIN_TEXT);
+        t.el.style.left = t.pos.x + 'px';
+        t.el.style.top  = t.pos.y + 'px';
+      }
+
+      // Webcam ↔ text collisions
+      if (!isPinching) {
+        for (const t of textObjects) {
+          if (t.opacity <= 0) continue;
+          if (resolveCollision(cam, t, 1.3)) {
+            triggerFlash();
+            dimText(t);
+          }
+        }
+      }
+
+      // Text ↔ text collisions
+      for (let i = 0; i < textObjects.length; i++) {
+        for (let j = i + 1; j < textObjects.length; j++) {
+          const a = textObjects[i], b = textObjects[j];
+          if (a.opacity <= 0 || b.opacity <= 0) continue;
+          resolveCollision(a, b, RESTITUTION_TEXT);
+        }
+      }
+
+      drawOverlay();
+      requestAnimationFrame(loop);
+    }
+
+    // ── Wall bounce ───────────────────────────────────────────────────────────
+    function wallBounce(pos, vel, halfW, halfH, margin = 0) {
+      if (pos.x - halfW < margin)            { pos.x = margin + halfW;          vel.x =  Math.abs(vel.x) * BOUNCE_WALL; }
+      if (pos.x + halfW > stageW - margin)   { pos.x = stageW - margin - halfW; vel.x = -Math.abs(vel.x) * BOUNCE_WALL; }
+      if (pos.y - halfH < margin)            { pos.y = margin + halfH;          vel.y =  Math.abs(vel.y) * BOUNCE_WALL; }
+      if (pos.y + halfH > stageH - margin)   { pos.y = stageH - margin - halfH; vel.y = -Math.abs(vel.y) * BOUNCE_WALL; }
+    }
+
+    // ── AABB collision resolution (1D impulse per axis) ───────────────────────
+    function resolveCollision(a, b, e = RESTITUTION) {
+      const ax1 = a.pos.x - a.w / 2, ax2 = a.pos.x + a.w / 2;
+      const ay1 = a.pos.y - a.h / 2, ay2 = a.pos.y + a.h / 2;
+      const bx1 = b.pos.x - b.w / 2, bx2 = b.pos.x + b.w / 2;
+      const by1 = b.pos.y - b.h / 2, by2 = b.pos.y + b.h / 2;
+
+      const ox = Math.min(ax2, bx2) - Math.max(ax1, bx1);
+      const oy = Math.min(ay2, by2) - Math.max(ay1, by1);
+
+      if (ox <= 0 || oy <= 0) return false;
+
+      const mA = a.mass, mB = b.mass, mt = mA + mB;
+
+      if (ox < oy) {
+        // Horizontal collision
+        const dir = a.pos.x < b.pos.x ? 1 : -1;
+        a.pos.x -= dir * ox * (mB / mt);
+        b.pos.x += dir * ox * (mA / mt);
+        const va = a.vel.x, vb = b.vel.x;
+        a.vel.x = ((mA - e * mB) * va + (1 + e) * mB * vb) / mt;
+        b.vel.x = ((mB - e * mA) * vb + (1 + e) * mA * va) / mt;
+      } else {
+        // Vertical collision
+        const dir = a.pos.y < b.pos.y ? 1 : -1;
+        a.pos.y -= dir * oy * (mB / mt);
+        b.pos.y += dir * oy * (mA / mt);
+        const va = a.vel.y, vb = b.vel.y;
+        a.vel.y = ((mA - e * mB) * va + (1 + e) * mB * vb) / mt;
+        b.vel.y = ((mB - e * mA) * vb + (1 + e) * mA * va) / mt;
+      }
+      return true;
+    }
+
+    // ── Collision flash ───────────────────────────────────────────────────────
+    function triggerFlash() {
+      const now = performance.now();
+      if (now - lastFlashTime < FLASH_COOLDOWN) return;
+      lastFlashTime = now;
+
+      wrapper.classList.add('hit');
+      clearTimeout(flashTimeout);
+      flashTimeout = setTimeout(() => wrapper.classList.remove('hit'), FLASH_DURATION);
+    }
+
+    // ── Text dimming ──────────────────────────────────────────────────────────
+    function dimText(t) {
+      const now = performance.now();
+      if (now - t.lastHitTime < DIM_COOLDOWN) return;
+      t.lastHitTime = now;
+      t.opacity = Math.max(0, t.opacity - DIM_AMOUNT);
+      t.el.style.opacity = t.opacity;
+      if (t.opacity <= 0) t.el.style.display = 'none';
+    }
+
+    // ── Overlay drawing ───────────────────────────────────────────────────────
+    function drawOverlay() {
+      const ctx = overlay.getContext('2d');
+      const w   = overlay.width, h = overlay.height;
+      ctx.clearRect(0, 0, w, h);
+
+      const cx = w / 2, cy = h / 2;
+      const sq = w * 0.055;
+
+      // Centre square — always visible (filled)
+      ctx.fillStyle = '#c2fe0b';
+      ctx.fillRect(cx - sq, cy - sq, sq * 2, sq * 2);
+
+      if (isPinching && pinchCurrent) {
+        const px = (1 - pinchCurrent.x) * w;
+        const py = pinchCurrent.y * h;
+        const dist = Math.hypot(px - cx, py - cy);
+
+        // Dotted circle, radius = distance to tracking square
+        ctx.strokeStyle = 'rgba(255,255,255,1)';
+        ctx.lineWidth   = 2.5;
+        ctx.setLineDash([4, 6]);
+        ctx.beginPath();
+        ctx.arc(cx, cy, dist, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Dotted line centre → tracking square
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(px, py);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Tracking square (outlined)
+        ctx.strokeStyle = '#01ffff';
+        ctx.lineWidth   = 2;
+        ctx.strokeRect(px - sq, py - sq, sq * 2, sq * 2);
+      }
+    }
+
+    // ── Apply webcam position to DOM ──────────────────────────────────────────
+    function applyCamPos() {
+      wrapper.style.left = cam.pos.x + 'px';
+      wrapper.style.top  = cam.pos.y + 'px';
+    }
+
+    // ── MediaPipe hand results ────────────────────────────────────────────────
+    function onResults(results) {
+      if (!results.multiHandLandmarks || results.multiHandLandmarks.length === 0) {
+        if (isPinching) releasePinch();
+        return;
+      }
+
+      // Check every detected hand; use whichever is pinching
+      let activePinch = null;
+      for (const lm of results.multiHandLandmarks) {
+        const thumb = lm[4];
+        const index = lm[8];
+        const mid   = { x: (thumb.x + index.x) / 2, y: (thumb.y + index.y) / 2 };
+        const dist  = Math.hypot(thumb.x - index.x, thumb.y - index.y);
+        if (dist < PINCH_THRESHOLD) {
+          // Prefer a hand that's already pinching; otherwise accept one near centre
+          if (isPinching || Math.hypot(mid.x - 0.5, mid.y - 0.5) < PINCH_ZONE) {
+            activePinch = mid;
+            break;
+          }
+        }
+      }
+
+      if (activePinch) {
+        if (!isPinching) {
+          isPinching   = true;
+          pinchCurrent = activePinch; // seed smoother with first raw position
+        } else {
+          // Exponential smoothing: blend toward new raw position
+          pinchCurrent = {
+            x: PINCH_SMOOTH * activePinch.x + (1 - PINCH_SMOOTH) * pinchCurrent.x,
+            y: PINCH_SMOOTH * activePinch.y + (1 - PINCH_SMOOTH) * pinchCurrent.y,
+          };
+        }
+      } else {
+        if (isPinching) releasePinch();
+      }
+    }
+
+    function releasePinch() {
+      if (pinchCurrent) {
+        const dmpX = pinchCurrent.x - 0.5;
+        const dmpY = pinchCurrent.y - 0.5;
+        cam.vel.x =  dmpX * stageW * LAUNCH_MULT;
+        cam.vel.y = -dmpY * stageH * LAUNCH_MULT;
+      }
+      isPinching   = false;
+      pinchCurrent = null;
+    }
+
+    // ── MediaPipe + Camera setup ──────────────────────────────────────────────
+    const hands = new Hands({
+      locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`
+    });
+    hands.setOptions({
+      maxNumHands: 2, modelComplexity: 1,
+      minDetectionConfidence: 0.7, minTrackingConfidence: 0.5
+    });
+    hands.onResults(onResults);
+
+    const mpCamera = new Camera(video, {
+      onFrame: async () => { await hands.send({ image: video }); },
+      width: 1200, height: 1200
+    });
+
+    Promise.all([mpCamera.start(), document.fonts.ready])
+      .then(init)
+      .catch(err => {
+        console.error('Camera error:', err);
+        video.style.display = 'none';
+        noCam.style.display = 'flex';
+        document.fonts.ready.then(init);
+      });
+
+    // ── Resize ───────────────────────────────────────────────────────────────
+    window.addEventListener('resize', () => {
+      stageW  = stage.clientWidth;
+      stageH  = stage.clientHeight;
+      camSize = wrapper.clientWidth;
+      overlay.width  = camSize;
+      overlay.height = camSize;
+    });
+  </script>
+</body>
+</html>

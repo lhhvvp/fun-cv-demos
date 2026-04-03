@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html style="width: 100%; height: 100%;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radial Music</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="Radial Music">
+    <meta name="description" content="make music with hand movements">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://funwithcomputervision.com/radial/">
+    <meta property="og:title" content="Radial Music">
+    <meta property="og:description" content="make music with hand movements">
+    <meta property="og:image" content="https://funwithcomputervision.com/assets/radial.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://funwithcomputervision.com/radial/">
+    <meta property="twitter:title" content="Radial Music">
+    <meta property="twitter:description" content="make music with hand movements">
+    <meta property="twitter:image" content="https://funwithcomputervision.com/assets/radial.png">
+
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="376d8af4-cd09-461a-9ca9-f5eeed83e857"></script>
+    
+    <script type="importmap">
+        { "imports": { "three": "https://esm.sh/three@0.161.0?dev", "three/": "https://esm.sh/three@0.161.0&dev/" } }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+</head>
+<body>
+    <div id="renderDiv">
+        <video id="webcam-video" autoplay muted playsinline></video>
+        <div id="logo-container" class="text-box">
+            <a href="https://www.funwithcomputervision.com/" target="_blank">funwithcomputervision.com</a><br>
+        </div>
+    </div>
+    <div id="start-overlay">
+        <button id="start-button">start the music</button>
+    </div>
+
+</body>
+<script src="main.js" type="module"></script>
+</html>

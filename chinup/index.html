@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Do a chin-up, save a cat</title>
+        <link rel="stylesheet" href="styles.css">
+        <script type="importmap">
+            {
+                "imports": {
+                    "three": "https://esm.sh/three@0.161.0?dev",
+                    "three/": "https://esm.sh/three@0.161.0&dev/"
+                }
+            }
+        </script>
+
+        <!-- Primary Meta Tags -->
+        <meta name="title" content="Do a chin-up, save a cat">
+        <meta name="description" content="body movement webgame">
+
+        <!-- Open Graph / Facebook -->
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="https://funwithcomputervision.com/chinup/">
+        <meta property="og:title" content="Do a chin-up, save a cat">
+        <meta property="og:description" content="body movement webgame">
+        <meta property="og:image" content="https://funwithcomputervision.com/assets/chinup.png">
+
+        <!-- Twitter -->
+        <meta property="twitter:card" content="summary_large_image">
+        <meta property="twitter:url" content="https://funwithcomputervision.com/chinup/">
+        <meta property="twitter:title" content="Do a chin-up, save a cat">
+        <meta property="twitter:description" content="body movement webgame">
+        <meta property="twitter:image" content="https://funwithcomputervision.com/assets/chinup.png">
+
+        <script defer src="https://cloud.umami.is/script.js" data-website-id="376d8af4-cd09-461a-9ca9-f5eeed83e857"></script>
+
+    </head>
+    <body>
+        <div id="renderDiv">
+            <!-- Video element -->
+            <video id="videoElement" autoplay muted playsinline></video>
+            
+            <!-- House image -->
+            <!-- <img id="houseImage" src="./house.png" alt="Cat House" /> -->
+            
+            <!-- Fire container -->
+            <div id="fireContainer"></div>
+            
+            <!-- Start screen overlay -->
+            <div id="startScreenOverlay">
+                <div class="text-container">
+                    <h1>🏋️‍♂️ do a chin-up, save a cat 🐈</h1>
+                    <p>
+                        > enable camera access<br>
+                        > position yourself so your upper body is visible<br>
+                    </p>
+                    <p id="loadingText">Loading camera and pose detection...</p>
+                    <button id="startButton">START</button>
+                </div>
+            </div>
+            
+            <!-- Counter UI -->
+            <div id="counterContainer" class="text-box">
+                <div id="counterDisplay">Cats Saved: 0</div>
+                <!-- <div id="stateDisplay">State: Ready to rescue</div> -->
+            </div>
+
+            <div id="logo-container" class="text-box">
+                <span id="logo">🪬</span><br>
+                <a href="https://www.funwithcomputervision.com/" target="_blank">code & tutorials</a>
+            </div>
+            
+            <!-- Game over / status container -->
+            <div id="gameOverContainer">
+                <div id="gameOverText">STATUS</div>
+                <div id="restartHintText">(click to restart tracking)</div>
+            </div>
+        </div>
+        
+        <script type="module" src="main.js"></script>
+    </body>
+</html>

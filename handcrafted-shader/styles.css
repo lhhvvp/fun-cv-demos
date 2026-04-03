@@ -1,0 +1,213 @@
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Arial', sans-serif;
+}
+
+/* Main container */
+#renderDiv {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: #111;
+}
+
+/* Webcam video */
+#webcam-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1); /* Mirror view for intuitive control */
+    filter: grayscale(100%); /* Make webcam feed black and white */
+    z-index: 0;
+}
+
+/* Speech bubble */
+#speech-bubble {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-5px);
+    padding: 15px 25px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 2px solid #007bff;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    color: #333;
+    font-size: clamp(16px, 3vw, 22px);
+    max-width: 80%;
+    text-align: center;
+    z-index: 25;
+    opacity: 0.7;
+    transition: opacity 0.5s ease-in-out, transform 0.3s ease-in-out;
+    pointer-events: none;
+}
+
+/* Canvas overlay (will be positioned by Three.js) */
+canvas {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    z-index: 1 !important;
+}
+
+/* Speech bubble states */
+.speech-bubble-active {
+    opacity: 1 !important;
+    transform: translateX(-50%) translateY(0px) !important;
+}
+
+.speech-bubble-interim {
+    color: #888 !important;
+    font-style: italic !important;
+}
+
+/* Color control UI */
+#color-controls {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-family: 'Arial', sans-serif;
+    pointer-events: none;
+}
+
+.color-option {
+    color: #000000;
+    font-size: 20px;
+    font-weight: normal;
+    padding: 4px 8px;
+    /* border-radius: 4px; */
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    min-width: 60px;
+    text-align: center;
+}
+
+.color-option.active {
+    color: #000000;
+    font-size: 28px;
+    font-weight: bold;
+    background-color: rgba(255, 255, 255, 0.95);
+    border: 2px solid rgba(0, 0, 0, 0.6);
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Color-specific highlights for active state */
+.color-option.active[data-color="Blue"] {
+    border-color: #4da6ff;
+    box-shadow: 0 0 15px rgba(77, 166, 255, 0.5);
+}
+
+.color-option.active[data-color="Red"] {
+    border-color: #ff4d4d;
+    box-shadow: 0 0 15px rgba(255, 77, 77, 0.5);
+}
+
+.color-option.active[data-color="Yellow"] {
+    border-color: #ffeb3b;
+    box-shadow: 0 0 15px rgba(255, 235, 59, 0.5);
+}
+
+.color-option.active[data-color="Black"] {
+    border-color: #666666;
+    box-shadow: 0 0 15px rgba(102, 102, 102, 0.5);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #color-controls {
+        top: 15px;
+        left: 15px;
+        gap: 6px;
+    }
+    
+    .color-option {
+        font-size: 14px;
+        padding: 3px 6px;
+        min-width: 50px;
+    }
+    
+    .color-option.active {
+        font-size: 18px;
+    }
+}
+
+.text-box {
+    padding: 8px 15px;
+    background-color: rgba(255, 255, 255, 0.8);
+    color: black;
+    border-radius: 4px;
+    font-family: "Helvetica Neue", Helvetica, sans-serif;
+    border: 2px solid rgb(53, 47, 108);
+    box-shadow: 3px 3px 0px rgb(23, 17, 77);
+    font-size: clamp(13px, 2vw, 15px);
+    text-align: center;
+    z-index: 200;
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out, bottom 0.3s ease-in-out, box-shadow 0.2s ease;
+}
+
+#info-text {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 15px;
+    background-color: rgba(255, 255, 255, 0.6);
+    color: black;
+    border-radius: 4px;
+    font-family: "Helvetica Neue", Helvetica, sans-serif;
+    border: 2px solid rgb(53, 47, 108);
+    box-shadow: 3px 3px 0px rgb(23, 17, 77);
+    font-size: clamp(20px, 4vw, 30px);
+    text-align: center;
+    z-index: 200;
+}
+
+#instruction-text {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    text-align: left;
+}
+
+#social-links {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    text-align: left;
+}
+
+#video-link {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+#logo-container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+#logo {
+    font-size: 2em;
+}

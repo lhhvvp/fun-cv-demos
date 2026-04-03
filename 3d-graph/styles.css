@@ -1,0 +1,352 @@
+/* Base styles */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Arial', sans-serif;
+}
+
+#renderDiv {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: #111;
+}
+
+/* Video Element */
+#videoElement {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1); /* Mirror view */
+    filter: grayscale(100%);
+    z-index: 0;
+}
+
+/* Status Container (Game Over / Error) */
+#statusContainer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    display: none;
+    pointer-events: none;
+    text-align: center;
+    color: white;
+    text-shadow: 2px 2px 4px black;
+    font-family: "Arial Black", Gadget, sans-serif;
+}
+
+#statusText {
+    font-size: clamp(36px, 10vw, 72px);
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+#restartHint {
+    font-size: clamp(16px, 3vw, 24px);
+    font-weight: normal;
+    opacity: 0.8;
+    display: none;
+}
+
+/* Speech Bubble */
+#speechBubble {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 15px 25px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 2px solid #007bff;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    color: black;
+    font-family: "Arial", sans-serif;
+    font-size: clamp(16px, 3vw, 22px);
+    max-width: 80%;
+    text-align: center;
+    z-index: 25;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease-in-out, 
+                transform 0.3s ease-in-out, 
+                box-shadow 0.3s ease-in-out, 
+                border 0.3s ease-in-out, 
+                padding 0.3s ease-in-out, 
+                font-size 0.3s ease-in-out, 
+                top 0.3s ease-in-out;
+}
+
+/* Speech bubble active state */
+#speechBubble.active {
+    transform: translateX(-50%) scale(1.15);
+    box-shadow: 0 0 18px 6px rgba(0, 255, 255, 0.75), 
+                0 7px 14px rgba(0, 123, 255, 0.6), 
+                0 4px 10px rgba(0, 0, 0, 0.25);
+    border: 3px solid #00ccff;
+    padding: 18px 28px;
+    font-size: clamp(20px, 3.5vw, 26px);
+    top: 30px;
+}
+
+/* Speech bubble placeholder state */
+#speechBubble.placeholder {
+    transform: translateX(-50%) translateY(-5px);
+}
+
+/* Force Graph Container */
+#forceGraphContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    pointer-events: auto;
+}
+
+/* Interaction Mode Menu */
+#interactionModeMenu {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background-color: rgba(20, 30, 45, 0.9);
+    border: 1px solid rgba(0, 220, 255, 0.75);
+    border-radius: 6px;
+    padding: 12px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-family: 'Orbitron', 'Helvetica Neue', 'Arial', sans-serif;
+    color: white;
+    box-shadow: 0 0 18px rgba(0, 220, 255, 0.6), 
+                0 0 8px rgba(0, 220, 255, 0.45) inset, 
+                0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.mode-option {
+    padding: 12px 18px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.25s, 
+                color 0.25s, 
+                transform 0.25s cubic-bezier(0.25, 0.1, 0.25, 1), 
+                border-color 0.25s, 
+                box-shadow 0.25s;
+    font-size: clamp(16px, 2.8vw, 20px);
+    text-align: center;
+    border: 1px solid rgba(0, 150, 200, 0.5);
+    background-color: rgba(25, 40, 60, 0.8);
+    color: white;
+    transform: scale(1) perspective(500px) translateZ(0px);
+    user-select: none;
+}
+
+.mode-option.active {
+    background-color: rgba(0, 220, 255, 1);
+    color: white;
+    font-weight: bold;
+    transform: scale(1.1) perspective(500px) translateZ(10px);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.85), 
+                inset 0 0 10px rgba(200, 255, 255, 0.6), 
+                0 4px 8px rgba(0, 0, 0, 0.3);
+    border-color: rgba(150, 255, 255, 0.9);
+}
+
+.mode-option:not(.active):hover {
+    background-color: rgba(35, 55, 75, 0.95);
+    color: white;
+    border-color: rgba(0, 180, 230, 0.8);
+    transform: scale(1.03) perspective(500px) translateZ(5px);
+    box-shadow: 0 0 10px rgba(0, 200, 255, 0.3);
+}
+
+/* Instructions Box */
+#instructionsBox {
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(20, 30, 45, 0.55);
+    border: 1px solid rgba(0, 180, 255, 0.8);
+    border-radius: 8px;
+    padding: 10px;
+    z-index: 90;
+    max-width: 600px;
+    min-width: 300px;
+    text-align: center;
+    box-shadow: 0 0 15px rgba(0, 180, 255, 0.4), 
+                0 0 5px rgba(0, 180, 255, 0.3) inset, 
+                0 2px 6px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+}
+
+#instructionsText {
+    color: white;
+    font-family: 'Arial', sans-serif;
+    font-size: clamp(14px, 2.5vw, 18px);
+    line-height: 1.4;
+    margin: 0;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+    transition: all 0.3s ease-in-out;
+}
+
+/* Instructions box hover effect */
+#instructionsBox:hover {
+    border-color: rgba(0, 220, 255, 1);
+    box-shadow: 0 0 20px rgba(0, 220, 255, 0.6), 
+                0 0 8px rgba(0, 220, 255, 0.4) inset, 
+                0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+#instructionsBox:hover #instructionsText {
+    color: rgba(200, 250, 255, 1);
+}
+
+/* Node Labels (CSS2D Objects) */
+.node-label {
+    font-size: 12px;
+    font-family: 'Arial', sans-serif;
+    color: white;
+    padding: 1px 3px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 2px;
+    pointer-events: none;
+    user-select: none;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+    transition: transform 0.15s ease-out, 
+                background-color 0.15s ease-out, 
+                box-shadow 0.15s ease-out, 
+                border-color 0.15s ease-out, 
+                padding 0.15s ease-out, 
+                color 0.15s ease-out;
+}
+
+.node-label.node-label-hover {
+    background-color: yellow !important;
+    color: black !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    #interactionModeMenu {
+        bottom: 90px; /* Move up to make room for instructions */
+        left: 10px;
+        padding: 8px;
+        gap: 8px;
+    }
+    
+    .mode-option {
+        padding: 10px 14px;
+        font-size: clamp(14px, 4vw, 18px);
+    }
+    
+    #speechBubble {
+        max-width: 90%;
+        padding: 10px;
+    }
+    
+    #speechBubble.active {
+        padding: 15px 24px;
+    }
+    
+    #instructionsBox {
+        max-width: 90%;
+        min-width: 250px;
+    }
+    
+    #instructionsText {
+        font-size: clamp(13px, 3vw, 16px);
+    }
+}
+
+@media (max-width: 480px) {
+    #interactionModeMenu {
+        flex-direction: row;
+        bottom: 80px; /* Adjust for mobile */
+        left: 50%;
+        transform: translateX(-50%);
+        width: auto;
+    }
+    
+    .mode-option {
+        padding: 8px 12px;
+        font-size: clamp(12px, 4vw, 16px);
+        min-width: 60px;
+    }
+    
+    #instructionsBox {
+        max-width: 95%;
+    }
+    
+    #instructionsText {
+        font-size: clamp(12px, 3.5vw, 15px);
+        line-height: 1.3;
+    }
+}
+
+/* Utility Classes */
+.hidden {
+    display: none !important;
+}
+
+.visible {
+    display: block !important;
+}
+
+.fade-in {
+    opacity: 1 !important;
+}
+
+.fade-out {
+    opacity: 0 !important;
+}
+
+.text-box {
+    padding: 8px 15px;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: black;
+    font-family: "Arial", "Helvetica Neue", Helvetica, sans-serif;
+    border: 2px solid black;
+    box-shadow: 3px 3px 0px black;
+    font-size: clamp(13px, 2vw, 15px);
+    text-align: center;
+    z-index: 200;
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+    max-width: 90%;
+    box-sizing: border-box;
+    /* border-radius: 6px; */
+}
+
+#logo-container {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+
+a {
+    color: #0000ff !important;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+#logo {
+    font-size: clamp(1.5em, 4vw, 2em);
+}

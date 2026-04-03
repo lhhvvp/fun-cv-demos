@@ -1,0 +1,1584 @@
+{
+  "nodes": [
+    {
+      "id": "sundarpichai",
+      "group": 1
+    },
+    {
+      "id": "gamasutra",
+      "group": 1
+    },
+    {
+      "id": "sherylsandberg",
+      "group": 1
+    },
+    {
+      "id": "rabois",
+      "group": 1
+    },
+    {
+      "id": "bhorowitz",
+      "group": 1
+    },
+    {
+      "id": "sama",
+      "group": 1
+    },
+    {
+      "id": "geoffkeighley",
+      "group": 1
+    },
+    {
+      "id": "msuster",
+      "group": 1
+    },
+    {
+      "id": "hardmaru",
+      "group": 1
+    },
+    {
+      "id": "gdb",
+      "group": 1
+    },
+    {
+      "id": "andrewng",
+      "group": 2
+    },
+    {
+      "id": "semil",
+      "group": 2
+    },
+    {
+      "id": "brian_armstrong",
+      "group": 3
+    },
+    {
+      "id": "dhh",
+      "group": 2
+    },
+    {
+      "id": "thegrugq",
+      "group": 2
+    },
+    {
+      "id": "elonmusk",
+      "group": 2
+    },
+    {
+      "id": "lexfridman",
+      "group": 3
+    },
+    {
+      "id": "shevcapital",
+      "group": 3
+    },
+    {
+      "id": "thegameawards",
+      "group": 3
+    },
+    {
+      "id": "rweingarten",
+      "group": 3
+    },
+    {
+      "id": "karpathy",
+      "group": 3
+    },
+    {
+      "id": "cz_binance",
+      "group": 3
+    },
+    {
+      "id": "naval",
+      "group": 3
+    },
+    {
+      "id": "miyamoto",
+      "group": 3
+    },
+    {
+      "id": "paulg",
+      "group": 4
+    },
+    {
+      "id": "notch",
+      "group": 4
+    },
+    {
+      "id": "clintsharp",
+      "group": 5
+    },
+    {
+      "id": "emilychangtv",
+      "group": 4
+    },
+    {
+      "id": "satyanadella",
+      "group": 0
+    },
+    {
+      "id": "andyswan",
+      "group": 2
+    },
+    {
+      "id": "tim_cook",
+      "group": 3
+    },
+    {
+      "id": "vitalikbuterin",
+      "group": 2
+    },
+    {
+      "id": "matty3D",
+      "group": 2
+    },
+    {
+      "id": "cdixon",
+      "group": 2
+    },
+    {
+      "id": "gavingabe",
+      "group": 2
+    },
+    {
+      "id": "triketora",
+      "group": 2
+    },
+    {
+      "id": "bchesky",
+      "group": 2
+    },
+    {
+      "id": "swyx",
+      "group": 2
+    },
+    {
+      "id": "web",
+      "group": 2
+    },
+    {
+      "id": "jasonschreier",
+      "group": 4
+    },
+    {
+      "id": "susanwojcicki",
+      "group": 6
+    },
+    {
+      "id": "arrington",
+      "group": 4
+    },
+    {
+      "id": "balajis",
+      "group": 4
+    },
+    {
+      "id": "stephsmithio",
+      "group": 5
+    },
+    {
+      "id": "zuck",
+      "group": 0
+    },
+    {
+      "id": "levelsio",
+      "group": 0
+    },
+    {
+      "id": "pmarca",
+      "group": 7
+    },
+    {
+      "id": "danielgross",
+      "group": 7
+    },
+    {
+      "id": "a16z",
+      "group": 8
+    },
+    {
+      "id": "benthompson",
+      "group": 5
+    },
+    {
+      "id": "josh_wolfe",
+      "group": 5
+    },
+    {
+      "id": "packyM",
+      "group": 5
+    },
+    {
+      "id": "tobi",
+      "group": 5
+    },
+    {
+      "id": "neiltyson",
+      "group": 5
+    },
+    {
+      "id": "elonjet",
+      "group": 5
+    },
+    {
+      "id": "guyraz",
+      "group": 8
+    },
+    {
+      "id": "sundarpichai",
+      "group": 5
+    },
+    {
+      "id": "drantbradford",
+      "group": 8
+    },
+    {
+      "id": "om",
+      "group": 8
+    },
+    {
+      "id": "sriramk",
+      "group": 8
+    },
+    {
+      "id": "galiass",
+      "group": 8
+    },
+    {
+      "id": "ashleevance",
+      "group": 8
+    },
+    {
+      "id": "kevinrose",
+      "group": 8
+    },
+    {
+      "id": "techreview",
+      "group": 8
+    },
+    {
+      "id": "kevin2kelly",
+      "group": 8
+    },
+    {
+      "id": "mims",
+      "group": 8
+    },
+    {
+      "id": "aprilwensel",
+      "group": 8
+    },
+    {
+      "id": "sarahfrier",
+      "group": 9
+    },
+    {
+      "id": "ev",
+      "group": 4
+    },
+    {
+      "id": "jack",
+      "group": 4
+    },
+    {
+      "id": "kevinabosch",
+      "group": 4
+    },
+    {
+      "id": "davemorin",
+      "group": 4
+    },
+    {
+      "id": "eriktorenberg",
+      "group": 5
+    },
+    {
+      "id": "sama_ai",
+      "group": 10
+    },
+    {
+      "id": "emilygorcenski",
+      "group": 10
+    },
+    {
+      "id": "aubreygordon",
+      "group": 4
+    },
+    {
+      "id": "timoreilly",
+      "group": 8
+    }
+  ],
+  "links": [
+    {
+      "source": "gamasutra",
+      "target": "sundarpichai",
+      "value": 1
+    },
+    {
+      "source": "sherylsandberg",
+      "target": "sundarpichai",
+      "value": 8
+    },
+    {
+      "source": "rabois",
+      "target": "sundarpichai",
+      "value": 10
+    },
+    {
+      "source": "rabois",
+      "target": "sherylsandberg",
+      "value": 6
+    },
+    {
+      "source": "bhorowitz",
+      "target": "sundarpichai",
+      "value": 1
+    },
+    {
+      "source": "sama",
+      "target": "sundarpichai",
+      "value": 1
+    },
+    {
+      "source": "geoffkeighley",
+      "target": "sundarpichai",
+      "value": 1
+    },
+    {
+      "source": "msuster",
+      "target": "sundarpichai",
+      "value": 1
+    },
+    {
+      "source": "hardmaru",
+      "target": "sundarpichai",
+      "value": 2
+    },
+    {
+      "source": "gdb",
+      "target": "sundarpichai",
+      "value": 1
+    },
+    {
+      "source": "semil",
+      "target": "andrewng",
+      "value": 1
+    },
+    {
+      "source": "semil",
+      "target": "rabois",
+      "value": 3
+    },
+    {
+      "source": "semil",
+      "target": "sherylsandberg",
+      "value": 3
+    },
+    {
+      "source": "semil",
+      "target": "sundarpichai",
+      "value": 5
+    },
+    {
+      "source": "brian_armstrong",
+      "target": "semil",
+      "value": 1
+    },
+    {
+      "source": "dhh",
+      "target": "semil",
+      "value": 1
+    },
+    {
+      "source": "thegrugq",
+      "target": "semil",
+      "value": 1
+    },
+    {
+      "source": "elonmusk",
+      "target": "semil",
+      "value": 1
+    },
+    {
+      "source": "shevcapital",
+      "target": "lexfridman",
+      "value": 4
+    },
+    {
+      "source": "thegameawards",
+      "target": "lexfridman",
+      "value": 4
+    },
+    {
+      "source": "thegameawards",
+      "target": "shevcapital",
+      "value": 4
+    },
+    {
+      "source": "rweingarten",
+      "target": "lexfridman",
+      "value": 4
+    },
+    {
+      "source": "rweingarten",
+      "target": "shevcapital",
+      "value": 4
+    },
+    {
+      "source": "rweingarten",
+      "target": "thegameawards",
+      "value": 4
+    },
+    {
+      "source": "karpathy",
+      "target": "lexfridman",
+      "value": 3
+    },
+    {
+      "source": "karpathy",
+      "target": "shevcapital",
+      "value": 3
+    },
+    {
+      "source": "karpathy",
+      "target": "thegameawards",
+      "value": 3
+    },
+    {
+      "source": "karpathy",
+      "target": "rweingarten",
+      "value": 4
+    },
+    {
+      "source": "cz_binance",
+      "target": "lexfridman",
+      "value": 3
+    },
+    {
+      "source": "cz_binance",
+      "target": "shevcapital",
+      "value": 3
+    },
+    {
+      "source": "cz_binance",
+      "target": "thegameawards",
+      "value": 3
+    },
+    {
+      "source": "cz_binance",
+      "target": "rweingarten",
+      "value": 3
+    },
+    {
+      "source": "cz_binance",
+      "target": "karpathy",
+      "value": 5
+    },
+    {
+      "source": "naval",
+      "target": "lexfridman",
+      "value": 3
+    },
+    {
+      "source": "naval",
+      "target": "shevcapital",
+      "value": 3
+    },
+    {
+      "source": "naval",
+      "target": "thegameawards",
+      "value": 3
+    },
+    {
+      "source": "naval",
+      "target": "rweingarten",
+      "value": 3
+    },
+    {
+      "source": "naval",
+      "target": "karpathy",
+      "value": 4
+    },
+    {
+      "source": "naval",
+      "target": "cz_binance",
+      "value": 4
+    },
+    {
+      "source": "miyamoto",
+      "target": "lexfridman",
+      "value": 3
+    },
+    {
+      "source": "miyamoto",
+      "target": "shevcapital",
+      "value": 3
+    },
+    {
+      "source": "miyamoto",
+      "target": "thegameawards",
+      "value": 3
+    },
+    {
+      "source": "miyamoto",
+      "target": "rweingarten",
+      "value": 3
+    },
+    {
+      "source": "miyamoto",
+      "target": "karpathy",
+      "value": 4
+    },
+    {
+      "source": "miyamoto",
+      "target": "cz_binance",
+      "value": 4
+    },
+    {
+      "source": "miyamoto",
+      "target": "naval",
+      "value": 4
+    },
+    {
+      "source": "miyamoto",
+      "target": "brian_armstrong",
+      "value": 2
+    },
+    {
+      "source": "miyamoto",
+      "target": "semil",
+      "value": 9
+    },
+    {
+      "source": "paulg",
+      "target": "miyamoto",
+      "value": 2
+    },
+    {
+      "source": "paulg",
+      "target": "semil",
+      "value": 7
+    },
+    {
+      "source": "notch",
+      "target": "paulg",
+      "value": 13
+    },
+    {
+      "source": "notch",
+      "target": "miyamoto",
+      "value": 1
+    },
+    {
+      "source": "notch",
+      "target": "semil",
+      "value": 12
+    },
+    {
+      "source": "clintsharp",
+      "target": "paulg",
+      "value": 4
+    },
+    {
+      "source": "clintsharp",
+      "target": "semil",
+      "value": 31
+    },
+    {
+      "source": "clintsharp",
+      "target": "lexfridman",
+      "value": 1
+    },
+    {
+      "source": "clintsharp",
+      "target": "notch",
+      "value": 1
+    },
+    {
+      "source": "emilychangtv",
+      "target": "semil",
+      "value": 17
+    },
+    {
+      "source": "emilychangtv",
+      "target": "miyamoto",
+      "value": 5
+    },
+    {
+      "source": "emilychangtv",
+      "target": "notch",
+      "value": 5
+    },
+    {
+      "source": "emilychangtv",
+      "target": "paulg",
+      "value": 1
+    },
+    {
+      "source": "emilychangtv",
+      "target": "clintsharp",
+      "value": 1
+    },
+    {
+      "source": "satyanadella",
+      "target": "semil",
+      "value": 8
+    },
+    {
+      "source": "satyanadella",
+      "target": "emilychangtv",
+      "value": 1
+    },
+    {
+      "source": "andyswan",
+      "target": "miyamoto",
+      "value": 1
+    },
+    {
+      "source": "andyswan",
+      "target": "emilychangtv",
+      "value": 1
+    },
+    {
+      "source": "andyswan",
+      "target": "semil",
+      "value": 2
+    },
+    {
+      "source": "tim_cook",
+      "target": "miyamoto",
+      "value": 1
+    },
+    {
+      "source": "vitalikbuterin",
+      "target": "tim_cook",
+      "value": 2
+    },
+    {
+      "source": "vitalikbuterin",
+      "target": "semil",
+      "value": 3
+    },
+    {
+      "source": "vitalikbuterin",
+      "target": "miyamoto",
+      "value": 2
+    },
+    {
+      "source": "vitalikbuterin",
+      "target": "emilychangtv",
+      "value": 1
+    },
+    {
+      "source": "matty3D",
+      "target": "semil",
+      "value": 1
+    },
+    {
+      "source": "cdixon",
+      "target": "semil",
+      "value": 2
+    },
+    {
+      "source": "cdixon",
+      "target": "emilychangtv",
+      "value": 1
+    },
+    {
+      "source": "gavingabe",
+      "target": "semil",
+      "value": 3
+    },
+    {
+      "source": "gavingabe",
+      "target": "andyswan",
+      "value": 2
+    },
+    {
+      "source": "triketora",
+      "target": "semil",
+      "value": 3
+    },
+    {
+      "source": "triketora",
+      "target": "gavingabe",
+      "value": 3
+    },
+    {
+      "source": "triketora",
+      "target": "andyswan",
+      "value": 2
+    },
+    {
+      "source": "bchesky",
+      "target": "gavingabe",
+      "value": 2
+    },
+    {
+      "source": "bchesky",
+      "target": "triketora",
+      "value": 2
+    },
+    {
+      "source": "bchesky",
+      "target": "semil",
+      "value": 2
+    },
+    {
+      "source": "bchesky",
+      "target": "andyswan",
+      "value": 1
+    },
+    {
+      "source": "swyx",
+      "target": "gavingabe",
+      "value": 2
+    },
+    {
+      "source": "swyx",
+      "target": "triketora",
+      "value": 2
+    },
+    {
+      "source": "swyx",
+      "target": "bchesky",
+      "value": 2
+    },
+    {
+      "source": "swyx",
+      "target": "semil",
+      "value": 2
+    },
+    {
+      "source": "swyx",
+      "target": "andyswan",
+      "value": 1
+    },
+    {
+      "source": "web",
+      "target": "gavingabe",
+      "value": 2
+    },
+    {
+      "source": "web",
+      "target": "triketora",
+      "value": 2
+    },
+    {
+      "source": "web",
+      "target": "bchesky",
+      "value": 2
+    },
+    {
+      "source": "web",
+      "target": "swyx",
+      "value": 2
+    },
+    {
+      "source": "web",
+      "target": "semil",
+      "value": 2
+    },
+    {
+      "source": "web",
+      "target": "andyswan",
+      "value": 1
+    },
+    {
+      "source": "jasonschreier",
+      "target": "notch",
+      "value": 1
+    },
+    {
+      "source": "susanwojcicki",
+      "target": "notch",
+      "value": 1
+    },
+    {
+      "source": "arrington",
+      "target": "paulg",
+      "value": 2
+    },
+    {
+      "source": "arrington",
+      "target": "notch",
+      "value": 3
+    },
+    {
+      "source": "balajis",
+      "target": "arrington",
+      "value": 2
+    },
+    {
+      "source": "balajis",
+      "target": "notch",
+      "value": 2
+    },
+    {
+      "source": "balajis",
+      "target": "paulg",
+      "value": 1
+    },
+    {
+      "source": "stephsmithio",
+      "target": "semil",
+      "value": 3
+    },
+    {
+      "source": "stephsmithio",
+      "target": "clintsharp",
+      "value": 1
+    },
+    {
+      "source": "stephsmithio",
+      "target": "emilychangtv",
+      "value": 1
+    },
+    {
+      "source": "zuck",
+      "target": "satyanadella",
+      "value": 3
+    },
+    {
+      "source": "zuck",
+      "target": "semil",
+      "value": 1
+    },
+    {
+      "source": "levelsio",
+      "target": "satyanadella",
+      "value": 2
+    },
+    {
+      "source": "danielgross",
+      "target": "pmarca",
+      "value": 1
+    },
+    {
+      "source": "a16z",
+      "target": "danielgross",
+      "value": 2
+    },
+    {
+      "source": "a16z",
+      "target": "notch",
+      "value": 1
+    },
+    {
+      "source": "a16z",
+      "target": "emilychangtv",
+      "value": 1
+    },
+    {
+      "source": "a16z",
+      "target": "semil",
+      "value": 1
+    },
+    {
+      "source": "benthompson",
+      "target": "clintsharp",
+      "value": 3
+    },
+    {
+      "source": "benthompson",
+      "target": "semil",
+      "value": 2
+    },
+    {
+      "source": "josh_wolfe",
+      "target": "benthompson",
+      "value": 1
+    },
+    {
+      "source": "josh_wolfe",
+      "target": "paulg",
+      "value": 1
+    },
+    {
+      "source": "packyM",
+      "target": "benthompson",
+      "value": 9
+    },
+    {
+      "source": "packyM",
+      "target": "clintsharp",
+      "value": 2
+    },
+    {
+      "source": "packyM",
+      "target": "semil",
+      "value": 2
+    },
+    {
+      "source": "tobi",
+      "target": "packyM",
+      "value": 1
+    },
+    {
+      "source": "tobi",
+      "target": "jasonschreier",
+      "value": 1
+    },
+    {
+      "source": "neiltyson",
+      "target": "packyM",
+      "value": 1
+    },
+    {
+      "source": "elonjet",
+      "target": "packyM",
+      "value": 2
+    },
+    {
+      "source": "elonjet",
+      "target": "benthompson",
+      "value": 1
+    },
+    {
+      "source": "elonjet",
+      "target": "clintsharp",
+      "value": 1
+    },
+    {
+      "source": "guyraz",
+      "target": "packyM",
+      "value": 6
+    },
+    {
+      "source": "guyraz",
+      "target": "benthompson",
+      "value": 12
+    },
+    {
+      "source": "guyraz",
+      "target": "jasonschreier",
+      "value": 1
+    },
+    {
+      "source": "guyraz",
+      "target": "elonjet",
+      "value": 1
+    },
+    {
+      "source": "guyraz",
+      "target": "clintsharp",
+      "value": 21
+    },
+    {
+      "source": "guyraz",
+      "target": "semil",
+      "value": 19
+    },
+    {
+      "source": "guyraz",
+      "target": "lexfridman",
+      "value": 1
+    },
+    {
+      "source": "guyraz",
+      "target": "notch",
+      "value": 2
+    },
+    {
+      "source": "guyraz",
+      "target": "arrington",
+      "value": 5
+    },
+    {
+      "source": "guyraz",
+      "target": "a16z",
+      "value": 4
+    },
+    {
+      "source": "sundarpichai",
+      "target": "benthompson",
+      "value": 1
+    },
+    {
+      "source": "sundarpichai",
+      "target": "guyraz",
+      "value": 1
+    },
+    {
+      "source": "drantbradford",
+      "target": "guyraz",
+      "value": 1
+    },
+    {
+      "source": "drantbradford",
+      "target": "arrington",
+      "value": 1
+    },
+    {
+      "source": "drantbradford",
+      "target": "a16z",
+      "value": 1
+    },
+    {
+      "source": "om",
+      "target": "guyraz",
+      "value": 7
+    },
+    {
+      "source": "om",
+      "target": "a16z",
+      "value": 7
+    },
+    {
+      "source": "om",
+      "target": "emilychangtv",
+      "value": 6
+    },
+    {
+      "source": "om",
+      "target": "drantbradford",
+      "value": 1
+    },
+    {
+      "source": "om",
+      "target": "semil",
+      "value": 4
+    },
+    {
+      "source": "sriramk",
+      "target": "om",
+      "value": 15
+    },
+    {
+      "source": "sriramk",
+      "target": "guyraz",
+      "value": 5
+    },
+    {
+      "source": "sriramk",
+      "target": "a16z",
+      "value": 6
+    },
+    {
+      "source": "sriramk",
+      "target": "drantbradford",
+      "value": 2
+    },
+    {
+      "source": "galiass",
+      "target": "a16z",
+      "value": 1
+    },
+    {
+      "source": "galiass",
+      "target": "om",
+      "value": 4
+    },
+    {
+      "source": "galiass",
+      "target": "sriramk",
+      "value": 2
+    },
+    {
+      "source": "ashleevance",
+      "target": "a16z",
+      "value": 2
+    },
+    {
+      "source": "ashleevance",
+      "target": "om",
+      "value": 6
+    },
+    {
+      "source": "ashleevance",
+      "target": "galiass",
+      "value": 2
+    },
+    {
+      "source": "ashleevance",
+      "target": "sriramk",
+      "value": 5
+    },
+    {
+      "source": "ashleevance",
+      "target": "drantbradford",
+      "value": 1
+    },
+    {
+      "source": "ashleevance",
+      "target": "guyraz",
+      "value": 1
+    },
+    {
+      "source": "kevinrose",
+      "target": "guyraz",
+      "value": 9
+    },
+    {
+      "source": "kevinrose",
+      "target": "om",
+      "value": 17
+    },
+    {
+      "source": "kevinrose",
+      "target": "sriramk",
+      "value": 13
+    },
+    {
+      "source": "kevinrose",
+      "target": "a16z",
+      "value": 7
+    },
+    {
+      "source": "kevinrose",
+      "target": "drantbradford",
+      "value": 2
+    },
+    {
+      "source": "kevinrose",
+      "target": "arrington",
+      "value": 1
+    },
+    {
+      "source": "kevinrose",
+      "target": "ashleevance",
+      "value": 6
+    },
+    {
+      "source": "kevinrose",
+      "target": "galiass",
+      "value": 3
+    },
+    {
+      "source": "techreview",
+      "target": "sriramk",
+      "value": 5
+    },
+    {
+      "source": "techreview",
+      "target": "a16z",
+      "value": 5
+    },
+    {
+      "source": "techreview",
+      "target": "kevinrose",
+      "value": 6
+    },
+    {
+      "source": "techreview",
+      "target": "drantbradford",
+      "value": 2
+    },
+    {
+      "source": "techreview",
+      "target": "om",
+      "value": 4
+    },
+    {
+      "source": "techreview",
+      "target": "ashleevance",
+      "value": 3
+    },
+    {
+      "source": "techreview",
+      "target": "galiass",
+      "value": 2
+    },
+    {
+      "source": "techreview",
+      "target": "guyraz",
+      "value": 1
+    },
+    {
+      "source": "kevin2kelly",
+      "target": "guyraz",
+      "value": 5
+    },
+    {
+      "source": "kevin2kelly",
+      "target": "kevinrose",
+      "value": 12
+    },
+    {
+      "source": "kevin2kelly",
+      "target": "a16z",
+      "value": 5
+    },
+    {
+      "source": "kevin2kelly",
+      "target": "techreview",
+      "value": 4
+    },
+    {
+      "source": "kevin2kelly",
+      "target": "om",
+      "value": 10
+    },
+    {
+      "source": "kevin2kelly",
+      "target": "ashleevance",
+      "value": 6
+    },
+    {
+      "source": "kevin2kelly",
+      "target": "galiass",
+      "value": 2
+    },
+    {
+      "source": "kevin2kelly",
+      "target": "sriramk",
+      "value": 9
+    },
+    {
+      "source": "kevin2kelly",
+      "target": "drantbradford",
+      "value": 1
+    },
+    {
+      "source": "kevin2kelly",
+      "target": "semil",
+      "value": 1
+    },
+    {
+      "source": "mims",
+      "target": "techreview",
+      "value": 5
+    },
+    {
+      "source": "mims",
+      "target": "kevin2kelly",
+      "value": 7
+    },
+    {
+      "source": "mims",
+      "target": "a16z",
+      "value": 3
+    },
+    {
+      "source": "mims",
+      "target": "kevinrose",
+      "value": 5
+    },
+    {
+      "source": "mims",
+      "target": "om",
+      "value": 5
+    },
+    {
+      "source": "mims",
+      "target": "ashleevance",
+      "value": 5
+    },
+    {
+      "source": "mims",
+      "target": "galiass",
+      "value": 2
+    },
+    {
+      "source": "mims",
+      "target": "sriramk",
+      "value": 5
+    },
+    {
+      "source": "mims",
+      "target": "drantbradford",
+      "value": 1
+    },
+    {
+      "source": "mims",
+      "target": "guyraz",
+      "value": 2
+    },
+    {
+      "source": "aprilwensel",
+      "target": "kevin2kelly",
+      "value": 3
+    },
+    {
+      "source": "aprilwensel",
+      "target": "om",
+      "value": 3
+    },
+    {
+      "source": "aprilwensel",
+      "target": "sriramk",
+      "value": 1
+    },
+    {
+      "source": "aprilwensel",
+      "target": "kevinrose",
+      "value": 2
+    },
+    {
+      "source": "aprilwensel",
+      "target": "mims",
+      "value": 2
+    },
+    {
+      "source": "aprilwensel",
+      "target": "a16z",
+      "value": 1
+    },
+    {
+      "source": "aprilwensel",
+      "target": "techreview",
+      "value": 1
+    },
+    {
+      "source": "aprilwensel",
+      "target": "ashleevance",
+      "value": 1
+    },
+    {
+      "source": "aprilwensel",
+      "target": "galiass",
+      "value": 1
+    },
+    {
+      "source": "sarahfrier",
+      "target": "drantbradford",
+      "value": 3
+    },
+    {
+      "source": "ev",
+      "target": "notch",
+      "value": 5
+    },
+    {
+      "source": "ev",
+      "target": "semil",
+      "value": 1
+    },
+    {
+      "source": "ev",
+      "target": "paulg",
+      "value": 1
+    },
+    {
+      "source": "ev",
+      "target": "emilychangtv",
+      "value": 1
+    },
+    {
+      "source": "ev",
+      "target": "a16z",
+      "value": 1
+    },
+    {
+      "source": "ev",
+      "target": "arrington",
+      "value": 1
+    },
+    {
+      "source": "jack",
+      "target": "notch",
+      "value": 6
+    },
+    {
+      "source": "jack",
+      "target": "ev",
+      "value": 6
+    },
+    {
+      "source": "jack",
+      "target": "semil",
+      "value": 1
+    },
+    {
+      "source": "jack",
+      "target": "paulg",
+      "value": 1
+    },
+    {
+      "source": "jack",
+      "target": "emilychangtv",
+      "value": 2
+    },
+    {
+      "source": "jack",
+      "target": "a16z",
+      "value": 1
+    },
+    {
+      "source": "jack",
+      "target": "arrington",
+      "value": 1
+    },
+    {
+      "source": "kevinabosch",
+      "target": "notch",
+      "value": 4
+    },
+    {
+      "source": "kevinabosch",
+      "target": "jack",
+      "value": 4
+    },
+    {
+      "source": "kevinabosch",
+      "target": "ev",
+      "value": 4
+    },
+    {
+      "source": "kevinabosch",
+      "target": "semil",
+      "value": 1
+    },
+    {
+      "source": "kevinabosch",
+      "target": "paulg",
+      "value": 1
+    },
+    {
+      "source": "kevinabosch",
+      "target": "emilychangtv",
+      "value": 1
+    },
+    {
+      "source": "kevinabosch",
+      "target": "arrington",
+      "value": 1
+    },
+    {
+      "source": "kevinabosch",
+      "target": "om",
+      "value": 1
+    },
+    {
+      "source": "davemorin",
+      "target": "emilychangtv",
+      "value": 1
+    },
+    {
+      "source": "davemorin",
+      "target": "jack",
+      "value": 2
+    },
+    {
+      "source": "davemorin",
+      "target": "ev",
+      "value": 2
+    },
+    {
+      "source": "davemorin",
+      "target": "kevinabosch",
+      "value": 2
+    },
+    {
+      "source": "davemorin",
+      "target": "semil",
+      "value": 1
+    },
+    {
+      "source": "davemorin",
+      "target": "a16z",
+      "value": 1
+    },
+    {
+      "source": "davemorin",
+      "target": "arrington",
+      "value": 1
+    },
+    {
+      "source": "davemorin",
+      "target": "notch",
+      "value": 1
+    },
+    {
+      "source": "eriktorenberg",
+      "target": "clintsharp",
+      "value": 2
+    },
+    {
+      "source": "eriktorenberg",
+      "target": "emilychangtv",
+      "value": 1
+    },
+    {
+      "source": "eriktorenberg",
+      "target": "semil",
+      "value": 1
+    },
+    {
+      "source": "sama_ai",
+      "target": "a16z",
+      "value": 2
+    },
+    {
+      "source": "emilygorcenski",
+      "target": "a16z",
+      "value": 2
+    },
+    {
+      "source": "emilygorcenski",
+      "target": "sama_ai",
+      "value": 3
+    },
+    {
+      "source": "aubreygordon",
+      "target": "jack",
+      "value": 3
+    },
+    {
+      "source": "aubreygordon",
+      "target": "ev",
+      "value": 3
+    },
+    {
+      "source": "aubreygordon",
+      "target": "notch",
+      "value": 3
+    },
+    {
+      "source": "aubreygordon",
+      "target": "a16z",
+      "value": 1
+    },
+    {
+      "source": "aubreygordon",
+      "target": "arrington",
+      "value": 1
+    },
+    {
+      "source": "aubreygordon",
+      "target": "kevinabosch",
+      "value": 1
+    },
+    {
+      "source": "aubreygordon",
+      "target": "davemorin",
+      "value": 1
+    },
+    {
+      "source": "timoreilly",
+      "target": "kevin2kelly",
+      "value": 1
+    },
+    {
+      "source": "timoreilly",
+      "target": "mims",
+      "value": 1
+    },
+    {
+      "source": "timoreilly",
+      "target": "aprilwensel",
+      "value": 1
+    },
+    {
+      "source": "timoreilly",
+      "target": "techreview",
+      "value": 1
+    },
+    {
+      "source": "timoreilly",
+      "target": "kevinrose",
+      "value": 1
+    },
+    {
+      "source": "timoreilly",
+      "target": "a16z",
+      "value": 1
+    },
+    {
+      "source": "timoreilly",
+      "target": "om",
+      "value": 1
+    }
+  ]
+}

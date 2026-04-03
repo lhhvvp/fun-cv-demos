@@ -1,0 +1,66 @@
+{
+  "name": "fun-with-cv-launcher",
+  "version": "1.0.0",
+  "description": "Electron launcher for Fun with Computer Vision tutorials",
+  "author": "Colliding Scopes",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "com.funwithcv.launcher",
+    "productName": "Fun with Computer Vision",
+    "directories": {
+      "buildResources": "build"
+    },
+    "extraResources": [
+      {
+        "from": "..",
+        "to": ".",
+        "filter": [
+          "assets/**/*",
+          "3d-editor/**/*",
+          "3d-graph/**/*",
+          "3d-model-playground/**/*",
+          "arpeggiator/**/*",
+          "cat-cam/**/*",
+          "chinup/**/*",
+          "hand-tracking-101/**/*",
+          "handcrafted-shader/**/*",
+          "laser-kitten/**/*",
+          "marbles/**/*",
+          "oiia/**/*",
+          "planet-explorer/**/*",
+          "radial/**/*",
+          "seefood/**/*",
+          "shape-creator/**/*",
+          "snacker-news/**/*",
+          "the-floor-is-lava/**/*",
+          "voxel/**/*",
+          "whirlpool-camera/**/*"
+        ]
+      }
+    ],
+    "mac": {
+      "target": "dmg",
+      "icon": "build/icons/mac/icon.icns",
+      "identity": null,
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "build/icons/win/icon.ico"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Game",
+      "icon": "build/icons/linux/icon.png"
+    }
+  },
+  "devDependencies": {
+    "electron": "^39.0.0",
+    "electron-builder": "^24.13.3"
+  }
+}

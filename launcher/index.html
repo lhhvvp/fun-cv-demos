@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <title>Fun with Computer Vision Launcher</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin="anonymous"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <h1>Fun with Computer Vision</h1>
+          <p>Pick a camera-powered experience to launch.</p>
+        </div>
+        <label class="search">
+          <span class="visually-hidden">Search tutorials</span>
+          <input
+            id="search"
+            type="search"
+            spellcheck="false"
+            placeholder="Search by name or description"
+          />
+        </label>
+      </header>
+      <section id="cards" class="cards" role="list"></section>
+    </main>
+    <script src="./renderer.js" type="module"></script>
+  </body>
+</html>

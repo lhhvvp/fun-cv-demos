@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rasengan</title>
+  <link rel="stylesheet" href="https://unpkg.com/lil-gui@0.20.0/dist/lil-gui.css">
+
+  <!-- Primary Meta Tags -->
+  <meta name="title" content="Rasengan">
+  <meta name="description" content="jutsu ftw">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://funwithcomputervision.com/rasengan/">
+  <meta property="og:title" content="Rasengan">
+  <meta property="og:description" content="jutsu ftw">
+  <meta property="og:image" content="https://funwithcomputervision.com/assets/rasengan.png">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://funwithcomputervision.com/rasengan/">
+  <meta property="twitter:title" content="Rasengan">
+  <meta property="twitter:description" content="jutsu ftw">
+  <meta property="twitter:image" content="https://funwithcomputervision.com/assets/rasengan.png">
+
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="376d8af4-cd09-461a-9ca9-f5eeed83e857"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: #000;
+      overflow: hidden;
+      cursor: default;
+    }
+    #webcam {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: 0;
+      transform: scaleX(-1); /* Mirror the video for natural feel */
+      transition: filter 0.05s;
+      cursor: default;
+    }
+    #webcam.impact-flash {
+      /* Flicker handled by JS adding/removing class rapidly */
+    }
+    #webcam.impact-bw {
+      filter: grayscale(100%) contrast(250%) brightness(200%);
+    }
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+      cursor: default;
+    }
+    #landmarks {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 2;
+      pointer-events: none;
+    }
+    #loading {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #00ffff;
+      font-family: monospace;
+      font-size: 16px;
+      z-index: 10;
+      text-align: center;
+      pointer-events: none;
+    }
+    #instructions {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #fff;
+      font-family: monospace;
+      font-size: 14px;
+      z-index: 10;
+      text-align: center;
+      background: #000;
+      padding: 15px;
+      border-radius: 0;
+      pointer-events: none;
+      border: 1px solid white;
+      min-width: min(350px,95vw);
+    }
+    @media (max-width: 768px) {
+      #instructions {
+        font-size: 11px;
+        padding: 10px;
+      }
+      #logo {
+        font-size: 60px;
+        width: 60px;
+        height: 60px;
+      }
+    }
+    #logo {
+      position: fixed;
+      top: 5px;
+      left: 5px;
+      font-size: 100px;
+      line-height: 1;
+      z-index: 10;
+      cursor: pointer;
+      user-select: none;
+      text-decoration: none;
+      animation: spin 3s linear infinite;
+      display: inline-block;
+      width: 100px;
+      height: 100px;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    /* lil-gui positioning - flush against top-right */
+    .lil-gui {
+      right: 0 !important;
+      margin-right: 0 !important;
+      top: 0 !important;
+    }
+    .lil-gui.root {
+      right: 0 !important;
+    }
+    @media (max-width: 768px) {
+      .lil-gui {
+        font-size: 11px !important;
+      }
+      .lil-gui .title {
+        font-size: 11px !important;
+      }
+    }
+    #impact-frame {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 20;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <a id="logo" href="https://www.funwithcomputervision.com/" target="_blank" rel="noopener noreferrer">🌀</a>
+  <video id="webcam" autoplay playsinline muted></video>
+  <canvas id="landmarks"></canvas>
+  <canvas id="impact-frame"></canvas>
+  <div id="loading">Loading hand tracking...</div>
+  <div id="instructions">
+    open palm upward: summon * palm forward: shoot
+  </div>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.172.0/build/three.webgpu.js",
+      "three/tsl": "https://unpkg.com/three@0.172.0/build/three.tsl.js",
+      "three/webgpu": "https://unpkg.com/three@0.172.0/build/three.webgpu.js",
+      "lil-gui": "https://unpkg.com/lil-gui@0.20.0/dist/lil-gui.esm.js",
+      "@mediapipe/tasks-vision": "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.9/+esm"
+    }
+  }
+  </script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

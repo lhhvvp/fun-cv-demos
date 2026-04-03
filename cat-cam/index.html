@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat Photobooth</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.11.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.2/dist/coco-ssd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+    <link rel="stylesheet" href="styles.css">
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="Cat Cam">
+    <meta name="description" content="cat operated photobooth">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://funwithcomputervision.com/cat-cam/">
+    <meta property="og:title" content="Cat Cam">
+    <meta property="og:description" content="cat operated photobooth">
+    <meta property="og:image" content="https://funwithcomputervision.com/assets/cat-cam.webp">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://funwithcomputervision.com/cat-cam/">
+    <meta property="twitter:title" content="Cat Cam">
+    <meta property="twitter:description" content="cat operated photobooth">
+    <meta property="twitter:image" content="https://funwithcomputervision.com/assets/cat-cam.webp">
+
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="376d8af4-cd09-461a-9ca9-f5eeed83e857"></script>
+
+</head>
+<body>
+    <div class="container">
+        <div id="loading" class="loading">CAT DETECTION RADAR INCOMING...</div>
+        
+        <div class="photo-phase" id="photoPhase" style="display: none;">
+            <div class="camera-container">
+                <video id="video" autoplay muted playsinline></video>
+                <div class="overlay">
+                    <div class="status" id="status">CAT REQUIRED</div>
+                    <div class="countdown" id="countdown"></div>
+                    <div class="photo-count-badge" id="photoCountBadge">VIEW PHOTOS (0)</div>
+                    <img class="hat-overlay" id="hatOverlay" src="assets/hat2.png" style="display: none;" alt="Hat">
+                </div>
+            </div>
+        </div>
+
+        <div class="carousel-container" id="carouselPhase">
+            <div class="thumbnail-strip" id="thumbnailStrip" style="display: none;"></div>
+            <div class="photo-viewer">
+                <div class="media-container">
+                    <div id="noPhotos" class="no-photos">NO PHOTOS TAKEN YET</div>
+                    <canvas class="carousel-image" id="currentImage"></canvas>
+                </div>
+            </div>
+            <div class="carousel-controls" id="carouselControls" style="display: none;">
+                <button class="carousel-nav" id="prevBtn">←</button>
+                <div class="photo-counter" id="photoCounter">1 / 1</div>
+                <button class="carousel-nav" id="nextBtn">→</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="control-menu">
+        <!-- Photo mode buttons -->
+        <button class="control-button photo-mode-only" id="hatToggle">HAT ON</button>
+        <button class="control-button photo-mode-only" id="audioControl">SOUND ON</button>
+        <button class="control-button photo-mode-only mobile-only" id="cameraToggle">FLIP CAM</button>
+        
+        <!-- Carousel mode buttons -->
+        <button class="control-button carousel-mode-only" id="downloadBtn" style="display: none;">DOWNLOAD</button>
+        <button class="control-button carousel-mode-only" id="backToPhotoBtn" style="display: none;">BACK</button>
+    </div>
+
+</body>
+
+<script src="main.js"></script>
+
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whirlpool Camera</title>
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="Whirlpool Camera">
+    <meta name="description" content="wave your hands, wave your reality">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://funwithcomputervision.com/whirlpool-camera/">
+    <meta property="og:title" content="Whirlpool Camera">
+    <meta property="og:description" content="wave your hands, wave your reality">
+    <meta property="og:image" content="https://funwithcomputervision.com/assets/whirlpool-camera.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://funwithcomputervision.com/whirlpool-camera/">
+    <meta property="twitter:title" content="Whirlpool Camera">
+    <meta property="twitter:description" content="wave your hands, wave your reality">
+    <meta property="twitter:image" content="https://funwithcomputervision.com/assets/whirlpool-camera.png">
+
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="376d8af4-cd09-461a-9ca9-f5eeed83e857"></script>
+
+</head>
+<body>
+    <div id="container">
+        <video id="webcam-video" autoplay muted playsinline></video>
+        <canvas id="shader-canvas"></canvas>
+        
+        <div id="controls">
+            <div id="effect-selector">
+                <!-- <label>EFFECT MODE</label> -->
+                <select id="effect-select">
+                    <option value="whirlpool">Whirlpool</option>
+                    <option value="ripple">Ripple</option>
+                    <!-- <option value="kaleidoscope">Kaleidoscope</option> -->
+                    <option value="ascii">ASCII</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>DISTORT</label>
+                <input type="range" id="distortion" min="0" max="10" step="0.1" value="6.0">
+                <span class="value-display" id="distortion-value">6.0</span>
+            </div>
+            <div class="control-group">
+                <label>DECAY</label>
+                <input type="range" id="decay" min="0.0" max="1" step="0.01" value="0.5">
+                <span class="value-display" id="decay-value">0.5</span>
+            </div>
+            <div class="control-group">
+                <label>RADIUS</label>
+                <input type="range" id="radius" min="50" max="500" step="10" value="250">
+                <span class="value-display" id="radius-value">250</span>
+            </div>
+        </div>
+
+        <div id="title-box" class="text-box">
+            <span>wave your hands, wave your reality</span>
+        </div>
+      
+        <div id="social-links" class="text-box">
+            <a href="https://www.x.com/measure_plan/" target="_blank">Twitter</a><br>
+            <a href="https://www.instagram.com/stereo.drift/" target="_blank">Instagram</a><br>
+            <a href="https://www.youtube.com/@funwithcomputervision" target="_blank">Youtube</a>
+        </div>
+
+        <div id="logo-container" class="text-box">
+            <span id="logo">🪬</span><br>
+            <a href="https://www.funwithcomputervision.com/" target="_blank">code & tutorials</a>
+        </div>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://esm.sh/three@0.161.0"
+            }
+        }
+    </script>
+
+    <script src="main.js" type="module"></script>
+</body>
+</html>

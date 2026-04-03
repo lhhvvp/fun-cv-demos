@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Marble Aquarium</title>
+    <meta name="description" content="glass spheres bouncing in a cube" />
+    <link rel="stylesheet" href="./styles.css" />
+    <!-- MediaPipe dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="Marble Aquarium">
+    <meta name="description" content="glass spheres bouncing in a cube">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://funwithcomputervision.com/marbles/">
+    <meta property="og:title" content="Marble Aquarium">
+    <meta property="og:description" content="glass spheres bouncing in a cube">
+    <meta property="og:image" content="https://funwithcomputervision.com/assets/marbles.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://funwithcomputervision.com/marbles/">
+    <meta property="twitter:title" content="Marble Aquarium">
+    <meta property="twitter:description" content="glass spheres bouncing in a cube">
+    <meta property="twitter:image" content="https://funwithcomputervision.com/assets/marbles.png">
+
+  </head>
+  <body>
+    <main id="experience">
+      <section class="overlay">
+        <h1>Marble<br>Aquarium</h1>
+        <!-- <p>Soft light, calm motion, endless reflections.</p> -->
+      </section>
+      <section class="bottom-info">
+        <div class="fps-counter" id="fps-counter">60 FPS</div>
+        <button class="pause-button" id="pause-button" aria-label="Pause animation">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="6" y="4" width="4" height="16"></rect>
+            <rect x="14" y="4" width="4" height="16"></rect>
+          </svg>
+        </button>
+        <button class="camera-button" id="camera-button" aria-label="Start camera tracking">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+            <circle cx="12" cy="13" r="4"></circle>
+          </svg>
+        </button>
+      </section>
+      <section class="control-panel">
+        <button class="panel-toggle" id="panel-toggle" aria-label="Toggle control panel">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+        <div class="panel-content" id="panel-content">
+        <div class="control">
+          <div class="control-top">
+            <label for="color-palette">Color palette</label>
+          </div>
+          <select id="color-palette" class="palette-select">
+            <option value="neon">Neon</option>
+            <option value="pastel">Pastel</option>
+            <option value="evangelion">Evangelion</option>
+            <option value="akira">Akira</option>
+            <option value="cowboy-bebop">Cowboy Bebop</option>
+            <option value="bloomberg">Bloomberg</option>
+            <option value="tokyo-night">Tokyo Night</option>
+          </select>
+        </div>
+        <div class="control">
+          <div class="control-top">
+            <label for="sphere-count"># Spheres</label>
+            <span class="control-value" data-value-for="sphere-count" aria-live="polite">12</span>
+          </div>
+          <input type="range" id="sphere-count" min="2" max="20" value="12" step="1" />
+        </div>
+        <div class="control">
+          <div class="control-top">
+            <label for="sphere-size">Sphere Size</label>
+            <span class="control-value" data-value-for="sphere-size" aria-live="polite">1.00×</span>
+          </div>
+          <input type="range" id="sphere-size" min="0.5" max="2.0" value="1" step="0.01" />
+        </div>
+        <div class="control">
+          <div class="control-top">
+            <label for="scene-brightness">Brightness</label>
+            <span class="control-value" data-value-for="scene-brightness" aria-live="polite">1.00</span>
+          </div>
+          <input type="range" id="scene-brightness" min="0.2" max="2.0" value="1" step="0.01" />
+        </div>
+        <div class="control">
+          <div class="control-top">
+            <label for="glow-strength">Glow</label>
+            <span class="control-value" data-value-for="glow-strength" aria-live="polite">1.00×</span>
+          </div>
+          <input type="range" id="glow-strength" min="0.2" max="3.0" value="1" step="0.05" />
+        </div>
+        <div class="control">
+          <div class="control-top">
+            <label for="movement-speed">Speed</label>
+            <span class="control-value" data-value-for="movement-speed" aria-live="polite">2.00×</span>
+          </div>
+          <input type="range" id="movement-speed" min="0.0" max="3" value="2" step="0.05" />
+        </div>
+        </div>
+      </section>
+    </main>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+          "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+          "tone": "https://cdn.jsdelivr.net/npm/tone@14.8.49/build/Tone.js"
+        }
+      }
+    </script>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voxel Designer</title>
+    
+    <link rel="stylesheet" href="styles.css">
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="Voxel Designer">
+    <meta name="description" content="use hand gestures to shape voxel patterns">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://funwithcomputervision.com/voxel/">
+    <meta property="og:title" content="Voxel Designer">
+    <meta property="og:description" content="use hand gestures to shape voxel patterns">
+    <meta property="og:image" content="https://funwithcomputervision.com/assets/voxel.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://funwithcomputervision.com/voxel/">
+    <meta property="twitter:title" content="Voxel Designer">
+    <meta property="twitter:description" content="use hand gestures to shape voxel patterns">
+    <meta property="twitter:image" content="https://funwithcomputervision.com/assets/voxel.png">
+
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="376d8af4-cd09-461a-9ca9-f5eeed83e857"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #ffffff;
+            overflow: hidden;
+        }
+
+        #container {
+            position: relative;
+            width: 100vw;
+            height: 100dvh;
+        }
+
+        #webcam {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+            transform: scaleX(-1); /* Mirror the webcam */
+            filter: grayscale(100%); /* Black and white */
+        }
+
+        #landmarkCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        #canvas3d {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        #controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #333;
+            padding: 20px;
+            min-width: 250px;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 2px;
+            background: #333;
+            outline: none;
+            -webkit-appearance: none;
+            margin-bottom: 10px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #00ffcc;
+            cursor: pointer;
+            border-radius: 0;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #00ffcc;
+            cursor: pointer;
+            border-radius: 0;
+            border: none;
+        }
+
+        .value-display {
+            color: #00ffcc;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .gesture-controlled {
+            color: white !important;
+            font-weight: bold;
+        }
+
+        .status-active {
+            color: #00ffcc;
+        }
+
+        #equation {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #333;
+            padding: 15px;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+            max-width: 500px;
+            z-index: 100;
+        }
+
+        .equation-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .equation-formula {
+            color: #ffffff;
+            line-height: 1.4;
+        }
+
+        select {
+            width: 100%;
+            background: #222;
+            border: 1px solid #555;
+            border-radius: 0;
+            color: #fff;
+            padding: 5px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            outline: none;
+        }
+
+        select option {
+            background: #222;
+            color: #fff;
+        }
+
+        #gestureStatus {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #333;
+            padding: 15px;
+            font-size: 11px;
+            text-transform: uppercase;
+            min-width: 200px;
+        }
+
+        .status-item {
+            margin-bottom: 8px;
+        }
+
+        .status-active {
+            color: #00ffcc;
+        }
+
+        .status-inactive {
+            color: #666;
+        }
+
+        .palette-flash {
+            background: #00ffcc !important;
+            color: #000 !important;
+            transition: all 1.0s ease;
+        }
+
+        #cameraToggle {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #333;
+            color: #fff;
+            padding: 10px 15px;
+            font-family: inherit;
+            font-size: 14px;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        #cameraToggle:hover {
+            background: rgba(50, 50, 50, 0.8);
+        }
+
+        a {
+            color: white !important;
+        }
+
+        /* Hide gesture status on mobile devices */
+        @media (max-width: 768px) {
+            #gestureStatus {
+                display: none;
+            }
+        }
+
+        /* Additional mobile optimizations */
+        @media (max-width: 768px) {
+            #controls {
+                min-width: 200px;
+                padding: 15px;
+                font-size: 11px;
+            }
+            
+            #equation {
+                font-size: 11px;
+                padding: 10px;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <video id="webcam" autoplay muted playsinline></video>
+        <canvas id="landmarkCanvas"></canvas>
+        
+        <div id="controls">
+            <div class="control-group">
+                <label>Amplitude <span id="amplitudeGesture"></span></label>
+                <input type="range" id="amplitude" min="0.01" max="2" step="0.01" value="0.5">
+                <div class="value-display" id="amplitudeValue">0.5</div>
+            </div>
+            <div class="control-group">
+                <label>Frequency <span id="frequencyGesture"></span></label>
+                <input type="range" id="frequency" min="0.5" max="4" step="0.01" value="2">
+                <div class="value-display" id="frequencyValue">2.0</div>
+            </div>
+            <div class="control-group">
+                <label>Color Palette</label>
+                <select id="colorPalette">
+                    <option value="pixel8">8-Bit</option>
+                    <option value="neon">Neon</option>
+                    <option value="fire">Fire</option>
+                    <option value="ocean">Ocean</option>
+                    <option value="sunset">Sunset</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="gestureStatus">
+            <div class="status-item">
+                <span>Camera: </span>
+                <span id="cameraStatus" class="status-inactive">OFF</span>
+            </div>
+            <div class="status-item">
+                <span>Hand Tracking: </span>
+                <span id="handStatus" class="status-inactive">NO HANDS</span>
+            </div>
+            <div class="status-item">
+                <span>Pinch Distance: </span>
+                <span id="pinchDistance" class="status-inactive">--</span>
+            </div>
+            <div class="status-item">
+                <span>Wrist Y: </span>
+                <span id="wristY" class="status-inactive">--</span>
+            </div>
+            <div class="status-item">
+                <span>Hand Flip: </span>
+                <span id="handFlip" class="status-inactive">--</span>
+            </div>
+        </div>
+
+        <button id="cameraToggle">Start Camera</button>
+
+        <div id="equation">
+            <div class="equation-formula">
+                • pinch thumb+index → amplitude<br>
+                • wrist height → frequency<br>
+                • flip hand → change palette
+                <br><br>
+                <a href="https://www.funwithcomputervision.com/" target="_blank">funwithcomputervision.com</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.OrthographicCamera(
+            -4, 4, 3, -3, 0.1, 1000
+        );
+        const renderer = new THREE.WebGLRenderer({ 
+            antialias: false, 
+            alpha: true,
+            premultipliedAlpha: false
+        });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x000000, 0); // Transparent background
+        
+        const canvas3d = renderer.domElement;
+        canvas3d.id = 'canvas3d';
+        document.getElementById('container').appendChild(canvas3d);
+
+        // Camera positioning
+        camera.position.set(5, 5, 5);
+        camera.lookAt(0, 0, 0);
+
+        // Parameters
+        let params = {
+            amplitude: 1.5,
+            frequency: 2.0,
+            speed: 0.3,
+            complexity: 0.5
+        };
+
+        // Gesture control variables with exponential smoothing
+        let gestureControl = {
+            pinchDistance: 0,
+            wristY: 0,
+            handsDetected: false,
+            cameraActive: false,
+            // Smoothed values
+            smoothedPinchDistance: 0,
+            smoothedWristY: 0,
+            // Smoothing factors (0 = no smoothing, 1 = max smoothing)
+            pinchSmoothingFactor: 0.85,
+            wristSmoothingFactor: 0.8,
+            // Hand rotation gesture detection
+            isHandFlipped: false,
+            wasHandFlipped: false,
+            handFlipCooldown: 0
+        };
+
+        // Landmark canvas setup
+        let landmarkCanvas, landmarkCtx;
+        
+        function initializeLandmarkCanvas() {
+            landmarkCanvas = document.getElementById('landmarkCanvas');
+            landmarkCtx = landmarkCanvas.getContext('2d');
+            
+            // Set canvas size to match window
+            resizeLandmarkCanvas();
+        }
+        
+        function resizeLandmarkCanvas() {
+            landmarkCanvas.width = window.innerWidth;
+            landmarkCanvas.height = window.innerHeight;
+        }
+        
+        function drawLandmarks(landmarks) {
+            // Clear canvas
+            landmarkCtx.clearRect(0, 0, landmarkCanvas.width, landmarkCanvas.height);
+            
+            if (!landmarks) return;
+            
+            // Set drawing style for ring
+            landmarkCtx.fillStyle = '#00ffcc';
+            
+            // Draw thumb tip ring (landmark 4)
+            const thumbTip = landmarks[4];
+            const thumbX = (1 - thumbTip.x) * landmarkCanvas.width; // Mirror X coordinate
+            const thumbY = thumbTip.y * landmarkCanvas.height;
+            
+            drawRing(thumbX, thumbY, 20, 12); // outer radius 20, inner radius 12
+            
+            // Draw index finger tip ring (landmark 8)
+            const indexTip = landmarks[8];
+            const indexX = (1 - indexTip.x) * landmarkCanvas.width; // Mirror X coordinate  
+            const indexY = indexTip.y * landmarkCanvas.height;
+            
+            drawRing(indexX, indexY, 20, 12); // outer radius 20, inner radius 12
+        }
+        
+        function drawRing(x, y, outerRadius, innerRadius) {
+            landmarkCtx.beginPath();
+            // Draw outer circle
+            landmarkCtx.arc(x, y, outerRadius, 0, 2 * Math.PI, false);
+            // Draw inner circle (clockwise to create hole)
+            landmarkCtx.arc(x, y, innerRadius, 0, 2 * Math.PI, true);
+            landmarkCtx.fill();
+        }
+
+        // Function to cycle through color palettes
+        function cycleColorPalette() {
+            const paletteSelect = document.getElementById('colorPalette');
+            const options = paletteSelect.options;
+            const currentIndex = paletteSelect.selectedIndex;
+            const nextIndex = (currentIndex + 1) % options.length;
+            
+            paletteSelect.selectedIndex = nextIndex;
+            currentPalette = options[nextIndex].value;
+            
+            // Flash the palette selector with neon teal
+            paletteSelect.classList.add('palette-flash');
+            setTimeout(() => {
+                paletteSelect.classList.remove('palette-flash');
+            }, 1000);
+            
+            console.log(`Switched to palette: ${currentPalette}`);
+        }
+        let hands, camera_mediapipe;
+        
+        // Create geometry
+        const resolution = 24;
+        const size = 4;
+        
+        // Pixel art color palettes
+        const pixelPalettes = {
+            pixel8: [
+                new THREE.Color(0x1D2B53), new THREE.Color(0x7E2553), new THREE.Color(0x008751),
+                new THREE.Color(0x5F574F), new THREE.Color(0xAB5236), new THREE.Color(0xFF004D),
+                new THREE.Color(0xFFA300), new THREE.Color(0xFFEC27), new THREE.Color(0x00E436),
+                new THREE.Color(0x29ADFF), new THREE.Color(0x83769C), new THREE.Color(0xFF77A8),
+                new THREE.Color(0xFFCCAA), new THREE.Color(0xC2C3C7), new THREE.Color(0xFFF1E8)
+            ],
+            neon: [
+                new THREE.Color(0x000000), new THREE.Color(0x0F0F23), new THREE.Color(0x3A86FF),
+                new THREE.Color(0x8338EC), new THREE.Color(0xFF006E), new THREE.Color(0xFB5607),
+                new THREE.Color(0xFFBE0B), new THREE.Color(0x06FFA5)
+            ],
+            fire: [
+                new THREE.Color(0x000000), new THREE.Color(0x2C1810), new THREE.Color(0x8B2635),
+                new THREE.Color(0xDA4167), new THREE.Color(0xF99F40), new THREE.Color(0xFFD23F),
+                new THREE.Color(0xFFF7D6)
+            ],
+            ocean: [
+                new THREE.Color(0x000814), new THREE.Color(0x001D3D), new THREE.Color(0x003566),
+                new THREE.Color(0x0077B6), new THREE.Color(0x0096C7), new THREE.Color(0x00B4D8),
+                new THREE.Color(0x90E0EF)
+            ],
+            sunset: [
+                new THREE.Color(0x2D1B69), new THREE.Color(0x11213A), new THREE.Color(0x8B5A3C),
+                new THREE.Color(0xBB6B47), new THREE.Color(0xF4A261), new THREE.Color(0xE76F51),
+                new THREE.Color(0xFFB3BA)
+            ]
+        };
+
+        let currentPalette = 'pixel8';
+
+        function getSmoothPixelColor(normalizedValue, paletteName, previousColor = null, smoothingFactor = 0.1) {
+            const palette = pixelPalettes[paletteName];
+            const position = normalizedValue * (palette.length - 1);
+            const lowerIndex = Math.floor(position);
+            const upperIndex = Math.min(lowerIndex + 1, palette.length - 1);
+            const fraction = position - lowerIndex;
+            
+            const lowerColor = palette[lowerIndex];
+            const upperColor = palette[upperIndex];
+            const interpolatedColor = lowerColor.clone().lerp(upperColor, fraction);
+            
+            if (previousColor) {
+                return previousColor.lerp(interpolatedColor, smoothingFactor);
+            }
+            
+            return interpolatedColor;
+        }
+
+        // Create cube grid
+        const cubes = [];
+        const cubeSize = size / resolution;
+
+        function createCubeGrid() {
+            cubes.forEach(cube => {
+                scene.remove(cube.mesh);
+                scene.remove(cube.edges);
+            });
+            cubes.length = 0;
+
+            for (let i = 0; i < resolution; i++) {
+                for (let j = 0; j < resolution; j++) {
+                    const x = (i - resolution / 2 + 0.5) * cubeSize;
+                    const y = (j - resolution / 2 + 0.5) * cubeSize;
+                    
+                    const cubeGeometry = new THREE.BoxGeometry(
+                        cubeSize * 0.8, cubeSize * 0.8, cubeSize * 0.8
+                    );
+                    const cubeMaterial = new THREE.MeshLambertMaterial({
+                        color: 0x888888
+                    });
+                    
+                    const cubeMesh = new THREE.Mesh(cubeGeometry, cubeMaterial);
+                    cubeMesh.position.set(x, y, 0);
+                    
+                    const edges = new THREE.EdgesGeometry(cubeGeometry);
+                    const edgesMaterial = new THREE.LineBasicMaterial({
+                        color: 0x222222,
+                        linewidth: 1
+                    });
+                    const edgesMesh = new THREE.LineSegments(edges, edgesMaterial);
+                    edgesMesh.position.copy(cubeMesh.position);
+                    
+                    scene.add(cubeMesh);
+                    scene.add(edgesMesh);
+                    
+                    cubes.push({
+                        mesh: cubeMesh,
+                        edges: edgesMesh,
+                        baseX: x,
+                        baseY: y,
+                        previousColor: new THREE.Color(0x888888),
+                        i: i,
+                        j: j
+                    });
+                }
+            }
+        }
+
+        createCubeGrid();
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
+        scene.add(ambientLight);
+
+        const directionalLight1 = new THREE.DirectionalLight(0xffff00, 2.8);
+        directionalLight1.position.set(10, 10, 5);
+        scene.add(directionalLight1);
+
+        // Update cubes function
+        function updateCubes(time) {
+            let minZ = Infinity;
+            let maxZ = -Infinity;
+            const zValues = [];
+            
+            cubes.forEach((cube, index) => {
+                const x = cube.baseX;
+                const y = cube.baseY;
+                
+                const r = Math.sqrt(x * x + y * y);
+                const z = params.amplitude * 
+                          Math.sin(params.frequency * r + time * params.speed) * 
+                          Math.cos(params.complexity * x * y + time * 0.3);
+                
+                zValues[index] = z;
+                minZ = Math.min(minZ, z);
+                maxZ = Math.max(maxZ, z);
+            });
+            
+            cubes.forEach((cube, index) => {
+                const z = zValues[index];
+                const normalizedZ = maxZ !== minZ ? (z - minZ) / (maxZ - minZ) : 0.5;
+                
+                cube.mesh.position.z = z;
+                cube.edges.position.z = z;
+                
+                const newColor = getSmoothPixelColor(normalizedZ, currentPalette, cube.previousColor, 0.15);
+                cube.mesh.material.color = newColor;
+                cube.previousColor = newColor.clone();
+            });
+        }
+
+        // MediaPipe Hands initialization
+        async function initializeHandTracking() {
+            hands = new Hands({
+                locateFile: (file) => {
+                    return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+                }
+            });
+
+            hands.setOptions({
+                maxNumHands: 1,
+                modelComplexity: 1,
+                minDetectionConfidence: 0.5,
+                minTrackingConfidence: 0.5
+            });
+
+            hands.onResults(onHandsResults);
+        }
+
+        // Calculate distance between two points
+        function calculateDistance(point1, point2) {
+            const dx = point1.x - point2.x;
+            const dy = point1.y - point2.y;
+            const dz = (point1.z || 0) - (point2.z || 0);
+            return Math.sqrt(dx * dx + dy * dy + dz * dz);
+        }
+
+        // Hand tracking results handler
+        function onHandsResults(results) {
+            // Decrease cooldown timer
+            if (gestureControl.handFlipCooldown > 0) {
+                gestureControl.handFlipCooldown--;
+            }
+            
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                gestureControl.handsDetected = true;
+                
+                // Process first detected hand
+                const landmarks = results.multiHandLandmarks[0];
+                
+                // Draw landmarks on canvas
+                drawLandmarks(landmarks);
+                
+                // Get key landmarks
+                const thumbTip = landmarks[4];      // Thumb tip
+                const indexTip = landmarks[8];      // Index finger tip  
+                const wrist = landmarks[0];         // Wrist
+                
+                // Detect hand flip gesture (index finger significantly below thumb)
+                const verticalDiff = indexTip.y - thumbTip.y; // In MediaPipe, y increases downward
+                const threshold = 0.08; // Adjust this threshold as needed
+                gestureControl.isHandFlipped = verticalDiff > threshold;
+                
+                // Trigger palette change on flip gesture (with cooldown to prevent rapid firing)
+                if (gestureControl.isHandFlipped && !gestureControl.wasHandFlipped && gestureControl.handFlipCooldown === 0) {
+                    cycleColorPalette();
+                    gestureControl.handFlipCooldown = 30; // 30 frames cooldown (~1 second at 30fps)
+                }
+                gestureControl.wasHandFlipped = gestureControl.isHandFlipped;
+                
+                // Calculate raw pinch distance (thumb tip to index tip)
+                const rawPinchDist = calculateDistance(thumbTip, indexTip);
+                
+                // Get raw wrist Y position (inverted because MediaPipe Y is top-to-bottom)
+                const rawWristY = 1.0 - wrist.y;
+                
+                // Apply exponential smoothing
+                gestureControl.smoothedPinchDistance = 
+                    gestureControl.pinchSmoothingFactor * gestureControl.smoothedPinchDistance + 
+                    (1 - gestureControl.pinchSmoothingFactor) * rawPinchDist;
+                
+                gestureControl.smoothedWristY = 
+                    gestureControl.wristSmoothingFactor * gestureControl.smoothedWristY + 
+                    (1 - gestureControl.wristSmoothingFactor) * rawWristY;
+                
+                // Update display values with raw data for debugging
+                gestureControl.pinchDistance = rawPinchDist;
+                gestureControl.wristY = rawWristY;
+                
+                // Map smoothed pinch distance to amplitude (wider finger distance = higher amplitude)
+                // Typical pinch distance ranges from ~0.02 (close) to ~0.15 (far)
+                const normalizedPinch = Math.max(0, Math.min(1, (gestureControl.smoothedPinchDistance - 0.02) / 0.13));
+                const newAmplitude = 0.01 + normalizedPinch * 1.99; // Map to 0.01-2.0
+                
+                // Map smoothed wrist Y to frequency 
+                const newFrequency = 0.5 + gestureControl.smoothedWristY * 3.5; // Map to 0.5-4.0
+                
+                // Update parameters with smoothed values
+                params.amplitude = newAmplitude;
+                params.frequency = newFrequency;
+                
+                // Update UI sliders
+                document.getElementById('amplitude').value = newAmplitude;
+                document.getElementById('frequency').value = newFrequency;
+                document.getElementById('amplitudeValue').textContent = newAmplitude.toFixed(2);
+                document.getElementById('frequencyValue').textContent = newFrequency.toFixed(1);
+                
+                // Update status display (show raw values for debugging) - only if element exists (not hidden on mobile)
+                const handStatus = document.getElementById('handStatus');
+                const pinchDistance = document.getElementById('pinchDistance');
+                const wristYElement = document.getElementById('wristY');
+                const handFlip = document.getElementById('handFlip');
+                
+                if (handStatus) {
+                    handStatus.textContent = 'DETECTED';
+                    handStatus.className = 'status-active';
+                }
+                if (pinchDistance) {
+                    pinchDistance.textContent = rawPinchDist.toFixed(3);
+                    pinchDistance.className = 'status-active';
+                }
+                if (wristYElement) {
+                    wristYElement.textContent = rawWristY.toFixed(3);
+                    wristYElement.className = 'status-active';
+                }
+                if (handFlip) {
+                    handFlip.textContent = gestureControl.isHandFlipped ? 'FLIPPED' : 'NORMAL';
+                    handFlip.className = gestureControl.isHandFlipped ? 'status-active' : 'status-inactive';
+                }
+                
+                // Highlight gesture-controlled parameters
+                document.getElementById('amplitudeGesture').className = 'gesture-controlled';
+                document.getElementById('frequencyGesture').className = 'gesture-controlled';
+                
+            } else {
+                gestureControl.handsDetected = false;
+                gestureControl.isHandFlipped = false;
+                gestureControl.wasHandFlipped = false;
+                
+                // Clear landmarks canvas
+                if (landmarkCtx) {
+                    landmarkCtx.clearRect(0, 0, landmarkCanvas.width, landmarkCanvas.height);
+                }
+                
+                // Update status display - only if elements exist (not hidden on mobile)
+                const handStatus = document.getElementById('handStatus');
+                const pinchDistance = document.getElementById('pinchDistance');
+                const wristYElement = document.getElementById('wristY');
+                const handFlip = document.getElementById('handFlip');
+                
+                if (handStatus) {
+                    handStatus.textContent = 'NO HANDS';
+                    handStatus.className = 'status-inactive';
+                }
+                if (pinchDistance) {
+                    pinchDistance.textContent = '--';
+                    pinchDistance.className = 'status-inactive';
+                }
+                if (wristYElement) {
+                    wristYElement.textContent = '--';
+                    wristYElement.className = 'status-inactive';
+                }
+                if (handFlip) {
+                    handFlip.textContent = '--';
+                    handFlip.className = 'status-inactive';
+                }
+                
+                // Remove gesture control highlighting
+                document.getElementById('amplitudeGesture').className = '';
+                document.getElementById('frequencyGesture').className = '';
+            }
+        }
+
+        // Camera setup
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 },
+                        facingMode: 'user'
+                    }
+                });
+                
+                const videoElement = document.getElementById('webcam');
+                videoElement.srcObject = stream;
+                
+                gestureControl.cameraActive = true;
+                const cameraStatus = document.getElementById('cameraStatus');
+                if (cameraStatus) {
+                    cameraStatus.textContent = 'ON';
+                    cameraStatus.className = 'status-active';
+                }
+                document.getElementById('cameraToggle').textContent = 'Stop Camera';
+                
+                // Initialize MediaPipe camera
+                camera_mediapipe = new Camera(videoElement, {
+                    onFrame: async () => {
+                        await hands.send({ image: videoElement });
+                    },
+                    width: 1920,
+                    height: 1080
+                });
+                camera_mediapipe.start();
+                
+            } catch (err) {
+                console.error('Error accessing camera:', err);
+                alert('Could not access camera. Please check permissions.');
+            }
+        }
+
+        function stopCamera() {
+            if (camera_mediapipe) {
+                camera_mediapipe.stop();
+            }
+            
+            const videoElement = document.getElementById('webcam');
+            if (videoElement.srcObject) {
+                const tracks = videoElement.srcObject.getTracks();
+                tracks.forEach(track => track.stop());
+                videoElement.srcObject = null;
+            }
+            
+            gestureControl.cameraActive = false;
+            const cameraStatus = document.getElementById('cameraStatus');
+            if (cameraStatus) {
+                cameraStatus.textContent = 'OFF';
+                cameraStatus.className = 'status-inactive';
+            }
+            document.getElementById('cameraToggle').textContent = 'Start Camera';
+        }
+
+        // Control handlers
+        function setupControls() {
+            const controls = ['amplitude', 'frequency'];
+            
+            controls.forEach(control => {
+                const slider = document.getElementById(control);
+                const display = document.getElementById(control + 'Value');
+                
+                slider.addEventListener('input', (e) => {
+                    const value = parseFloat(e.target.value);
+                    params[control] = value;
+                    display.textContent = value.toFixed(1);
+                });
+            });
+
+            // Color palette dropdown handler
+            const paletteSelect = document.getElementById('colorPalette');
+            paletteSelect.addEventListener('change', (e) => {
+                currentPalette = e.target.value;
+            });
+
+            // Camera toggle button
+            document.getElementById('cameraToggle').addEventListener('click', () => {
+                if (gestureControl.cameraActive) {
+                    stopCamera();
+                } else {
+                    startCamera();
+                }
+            });
+        }
+
+        setupControls();
+
+        // Animation loop
+        let startTime = Date.now();
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            const time = (Date.now() - startTime) * 0.001;
+            
+            // Gentle camera rotation
+            const angle = time * 0.1;
+            camera.position.x = 6 * Math.cos(angle);
+            camera.position.z = 6 * Math.sin(angle);
+            camera.position.y = 4 + Math.sin(time * 0.02) * 1;
+            camera.lookAt(0, 0, 0);
+            
+            // Update cubes
+            updateCubes(time);
+            
+            renderer.render(scene, camera);
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            const aspect = window.innerWidth / window.innerHeight;
+            const frustumSize = 8;
+            camera.left = -frustumSize * aspect / 2;
+            camera.right = frustumSize * aspect / 2;
+            camera.top = frustumSize / 2;
+            camera.bottom = -frustumSize / 2;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            
+            // Resize landmark canvas
+            resizeLandmarkCanvas();
+        });
+
+        // Initialize everything
+        async function init() {
+            initializeLandmarkCanvas();
+            await initializeHandTracking();
+            animate();
+        }
+
+        init();
+    </script>
+</body>
+</html>

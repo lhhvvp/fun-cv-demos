@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Voxel Editor</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+        #container { position: relative; width: 100%; height: 100%; }
+        #videoElement {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+            z-index: 1;
+        }
+        #canvas3d {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 15px;
+            font-size: 16px;
+            line-height: 1.8;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 10;
+            font-family: 'Courier New', monospace;
+        }
+        #instructions {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translate(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 15px;
+            font-size: 16px;
+            line-height: 1.8;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 10;
+            font-family: 'Courier New', monospace;
+        }
+        #status {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 0px;
+            letter-spacing: 1px;
+        }
+        #status.editing { color: #c6ffe4; }
+        #status.orbiting { color: #ffe3ff; }
+        #status.destroying { color: #ff6b6b; }
+        #blockCount { font-size: 18px; color: #ffffff; }
+        
+        #modeToggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+            border: 2px solid;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+            pointer-events: all;
+        }
+        
+        #modeToggle.create {
+            color: #77ffd2;
+            border-color: #e6ffe6;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+        
+        #modeToggle.create:hover, #modeToggle.create.hovering {
+            background: rgba(0, 255, 0, 0.1);
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.5);
+        }
+        
+        #modeToggle.destroy {
+            color: #ffbaba;
+            border-color: #ff6b6b;
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
+        }
+        
+        #modeToggle.destroy:hover, #modeToggle.destroy.hovering {
+            background: rgba(255, 107, 107, 0.1);
+            box-shadow: 0 0 30px rgba(255, 107, 107, 0.5);
+        }
+
+        #modeToggle.pressing {
+            transform: scale(0.95);
+            filter: brightness(1.3);
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <video id="videoElement" autoplay playsinline></video>
+        <canvas id="canvas3d"></canvas>
+        <div id="info">
+            <div id="status">READY</div>
+            <div id="blockCount">BLOCKS: 0</div>
+        </div>
+        <div id="instructions">
+            <p>pinch and drag to create new blocks</p>
+            <p>pinch with both hands to rotate camera</p>
+        </div>
+        <button id="modeToggle" class="create">CREATE</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    <script type="module">
+        import RAPIER from 'https://cdn.skypack.dev/@dimforge/rapier3d-compat';
+
+        await RAPIER.init();
+
+        // ============ Three.js Setup ============
+        const canvas = document.getElementById('canvas3d');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 0, 5);
+        camera.lookAt(0, 0, 0);
+
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setClearColor(0x000000, 0);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.0;
+        renderer.outputEncoding = THREE.sRGBEncoding;
+
+        // ============ Rapier Physics Setup ============
+        const gravity = { x: 0.0, y: -9.81, z: 0.0 };
+        const world = new RAPIER.World(gravity);
+        
+        // Create ground plane (static collider at y=0 to match grid)
+        const groundBodyDesc = RAPIER.RigidBodyDesc.fixed()
+            .setTranslation(0.0, 0.0, 0.0);
+        const groundBody = world.createRigidBody(groundBodyDesc);
+        const groundColliderDesc = RAPIER.ColliderDesc.cuboid(50.0, 0.1, 50.0)
+            .setRestitution(0.2)
+            .setFriction(0.7);
+        world.createCollider(groundColliderDesc, groundBody);
+
+        // Lighting
+        scene.add(new THREE.AmbientLight(0xffffff, 0.3));
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
+        directionalLight.position.set(5, 10, 5);
+        directionalLight.castShadow = true;
+        directionalLight.shadow.camera.near = 0.1;
+        directionalLight.shadow.camera.far = 50;
+        directionalLight.shadow.camera.left = -20;
+        directionalLight.shadow.camera.right = 20;
+        directionalLight.shadow.camera.top = 20;
+        directionalLight.shadow.camera.bottom = -20;
+        directionalLight.shadow.mapSize.width = 2048;
+        directionalLight.shadow.mapSize.height = 2048;
+        directionalLight.shadow.radius = 4;
+        directionalLight.shadow.bias = -0.0001;
+        scene.add(directionalLight);
+
+        // Add neon point lights for refraction effects
+        const pointLight1 = new THREE.PointLight(0xff00ff, 2, 15);
+        pointLight1.position.set(3, 2, 3);
+        scene.add(pointLight1);
+
+        const pointLight2 = new THREE.PointLight(0x00ffff, 2, 15);
+        pointLight2.position.set(-3, 3, -2);
+        scene.add(pointLight2);
+
+        const pointLight3 = new THREE.PointLight(0xffff00, 2, 15);
+        pointLight3.position.set(0, 4, -4);
+        scene.add(pointLight3);
+
+        const pointLight4 = new THREE.PointLight(0xff0080, 2, 15);
+        pointLight4.position.set(-2, 1, 4);
+        scene.add(pointLight4);
+
+        const pointLight5 = new THREE.PointLight(0x00ff80, 2, 15);
+        pointLight5.position.set(4, 2, -2);
+        scene.add(pointLight5);
+
+        // Grid helper
+        const gridHelper = new THREE.GridHelper(20, 20, 0xffffff, 0xaaaaaa);
+        gridHelper.material.transparent = true;
+        gridHelper.material.opacity = 1.0;
+        scene.add(gridHelper);
+        
+        // Create environment map for reflections
+        const pmremGenerator = new THREE.PMREMGenerator(renderer);
+        pmremGenerator.compileEquirectangularShader();
+        
+        const envScene = new THREE.Scene();
+        const envLight1 = new THREE.DirectionalLight(0xffffff, 1);
+        envLight1.position.set(1, 1, 1);
+        envScene.add(envLight1);
+        const envLight2 = new THREE.AmbientLight(0x4fc3f7, 0.5);
+        envScene.add(envLight2);
+        
+        const envRenderTarget = pmremGenerator.fromScene(envScene);
+        const envMap = envRenderTarget.texture;
+        scene.environment = envMap;
+
+        // Voxel management
+        const voxelSize = 0.6;
+        const voxelGeometry = new THREE.BoxGeometry(voxelSize, voxelSize, voxelSize);
+
+        // Materials
+        const lockedMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0x00FFFF,
+            metalness: 0.0,
+            roughness: 0.2,
+            transmission: 0.65,
+            thickness: 0.8,
+            envMapIntensity: 3.0,
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.0,
+            emissive: 0x00FFFF,
+            emissiveIntensity: 0.8,
+            transparent: true,
+            opacity: 1.0,
+            side: THREE.DoubleSide,
+            ior: 2.4,
+            envMap: envMap
+        });
+
+        const activeMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0x00FF00,
+            metalness: 0.0,
+            roughness: 0.1,
+            transmission: 0.3,
+            thickness: 0.3,
+            envMapIntensity: 3.0,
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.0,
+            emissive: 0x00FF00,
+            emissiveIntensity: 0.5,
+            transparent: true,
+            opacity: 0.5,
+            side: THREE.DoubleSide,
+            ior: 2.0,
+            envMap: envMap
+        });
+
+        const hoveredMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0x00FFFF,
+            metalness: 0.0,
+            roughness: 0.0,
+            transmission: 0.95,
+            thickness: 0.8,
+            envMapIntensity: 3.0,
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.0,
+            emissive: 0x00FFFF,
+            emissiveIntensity: 0.8,
+            transparent: true,
+            opacity: 0.4,
+            side: THREE.DoubleSide,
+            ior: 2.4,
+            envMap: envMap
+        });
+
+        // ============ State Management ============
+        const state = {
+            mode: 'create', // 'create' or 'destroy'
+            voxels: { locked: new Map(), active: new Map() },
+            physicsVoxels: new Map(), // Map of mesh -> rigidBody
+            stroke: [],
+            hover: [{ block: null, material: null, wireframe: null }, { block: null, material: null, wireframe: null }],
+            hand: { position: new THREE.Vector3(), smoothed: new THREE.Vector3(), last: new THREE.Vector3() },
+            fingerRaycasts: [], // Store raycast data for each finger
+            lastHitVoxels: [null, null], // Track last hit voxel per hand to avoid repeated hits
+            pinch: { current: false, last: false, states: [false, false], activeHandIndex: -1 },
+            axis: { locked: null, strokeStart: null, firstVoxel: null }, // Removed legacy 2D fields
+            orbit: { active: false, lastActive: false, angle: { theta: 0, phi: 0 }, center: new THREE.Vector3(), radius: 5, lastCenter: null, cooldownUntil: 0 },
+            button: { hovering: false, pressed: false, lastPressed: false, cooldownUntil: 0, dwellTime: 0 }
+        };
+
+        const CONSTANTS = {
+            PINCH_ENTER: 0.04, PINCH_EXIT: 0.07, SMOOTHING: 0.3, 
+            DIRECTION_THRESHOLD: 0.2, // Changed to World Space Units (approx 1/3 block size)
+            AXIS_LOCK_STRENGTH: 0.95, ORBIT_COOLDOWN: 500, FINGER_SPHERE_RADIUS: 0.25,
+            COLLISION_FORCE_MULTIPLIER: 1.5, BUTTON_DWELL_TIME: 200, BUTTON_COOLDOWN: 800
+        };
+
+        // ============ Mode Toggle ============
+        const modeToggle = document.getElementById('modeToggle');
+        
+        function toggleMode() {
+            state.mode = state.mode === 'create' ? 'destroy' : 'create';
+            modeToggle.textContent = state.mode.toUpperCase();
+            modeToggle.className = state.mode;
+            
+            if (state.mode === 'destroy') {
+                // Convert all locked voxels to physics objects
+                convertLockedVoxelsToPhysics();
+                clearActiveBlocks();
+            } else {
+                // Convert all physics voxels back to static locked voxels
+                convertPhysicsVoxelsToLocked();
+            }
+            
+            updateStatus(state.mode === 'create' ? 'READY' : 'DESTROY MODE');
+        }
+        
+        modeToggle.addEventListener('click', toggleMode);
+
+        // ============ Button Interaction Functions ============
+        function isPointInButton(screenX, screenY) {
+            // Get button bounds in screen space
+            const rect = modeToggle.getBoundingClientRect();
+            const x = (screenX + 1) * 0.5 * window.innerWidth;
+            const y = (1 - screenY) * 0.5 * window.innerHeight;
+            
+            return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+        }
+
+        function updateButtonInteraction(landmarks) {
+            if (!landmarks || !landmarks[8]) {
+                state.button.hovering = false;
+                state.button.pressed = false;
+                state.button.dwellTime = 0;
+                modeToggle.classList.remove('hovering', 'pressing');
+                return;
+            }
+
+            const indexTip = landmarks[8];
+            const screenX = (1 - indexTip.x) * 2 - 1;
+            const screenY = -(indexTip.y * 2 - 1);
+            
+            const isOverButton = isPointInButton(screenX, screenY);
+            
+            if (isOverButton) {
+                if (!state.button.hovering) {
+                    state.button.hovering = true;
+                    state.button.dwellTime = Date.now();
+                    modeToggle.classList.add('hovering');
+                } else {
+                    // Check if dwell time exceeded
+                    const elapsed = Date.now() - state.button.dwellTime;
+                    if (elapsed >= CONSTANTS.BUTTON_DWELL_TIME && !state.button.pressed) {
+                        // Check cooldown
+                        if (Date.now() >= state.button.cooldownUntil) {
+                            state.button.pressed = true;
+                            modeToggle.classList.add('pressing');
+                            
+                            // Trigger mode toggle
+                            setTimeout(() => {
+                                toggleMode();
+                                state.button.pressed = false;
+                                state.button.cooldownUntil = Date.now() + CONSTANTS.BUTTON_COOLDOWN;
+                                modeToggle.classList.remove('pressing');
+                            }, 200);
+                        }
+                    }
+                }
+            } else {
+                state.button.hovering = false;
+                state.button.dwellTime = 0;
+                modeToggle.classList.remove('hovering', 'pressing');
+            }
+        }
+
+        // ============ Helper Functions ============
+        const getVoxelKey = (x, y, z) => `${x},${y},${z}`;
+        const worldToVoxel = (pos) => ({ x: Math.round(pos.x / voxelSize), y: Math.round(pos.y / voxelSize), z: Math.round(pos.z / voxelSize) });
+        const voxelToWorld = (v) => new THREE.Vector3(v.x * voxelSize, v.y * voxelSize, v.z * voxelSize);
+        const updateStatus = (text, mode = 'ready') => {
+            const el = document.getElementById('status');
+            el.textContent = text;
+            el.className = mode === 'editing' ? 'editing' : mode === 'orbiting' ? 'orbiting' : mode === 'destroying' ? 'destroying' : '';
+        };
+        const updateBlockCount = () => {
+            const total = state.voxels.locked.size + state.voxels.active.size + state.physicsVoxels.size;
+            document.getElementById('blockCount').textContent = `BLOCKS: ${total}`;
+        };
+
+        // Thick wireframe using tubes
+        function createThickWireframe(position, color, thickness = 0.015) {
+            const group = new THREE.Group();
+            const material = new THREE.MeshBasicMaterial({ color, transparent: color === 0xffffff, opacity: 0.9 });
+            const half = voxelSize / 2;
+            const edges = [
+                [[-half, -half, -half], [half, -half, -half]], [[half, -half, -half], [half, -half, half]],
+                [[half, -half, half], [-half, -half, half]], [[-half, -half, half], [-half, -half, -half]],
+                [[-half, half, -half], [half, half, -half]], [[half, half, -half], [half, half, half]],
+                [[half, half, half], [-half, half, half]], [[-half, half, half], [-half, half, -half]],
+                [[-half, -half, -half], [-half, half, -half]], [[half, -half, -half], [half, half, -half]],
+                [[half, -half, half], [half, half, half]], [[-half, -half, half], [-half, half, half]]
+            ];
+            edges.forEach(([start, end]) => {
+                const startVec = new THREE.Vector3(...start), endVec = new THREE.Vector3(...end);
+                const direction = new THREE.Vector3().subVectors(endVec, startVec);
+                const length = direction.length();
+                const tube = new THREE.Mesh(new THREE.CylinderGeometry(thickness, thickness, length, 4), material);
+                const midpoint = new THREE.Vector3().addVectors(startVec, endVec).multiplyScalar(0.5);
+                tube.position.copy(midpoint);
+                tube.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
+                group.add(tube);
+            });
+            group.position.copy(position);
+            return group;
+        }
+
+        function createVoxel(position, material) {
+            const mesh = new THREE.Mesh(voxelGeometry, material);
+            mesh.position.copy(position);
+            mesh.castShadow = mesh.receiveShadow = true;
+            const wireframeColor = material === activeMaterial ? 0xffffff : 0x0000ff;
+            const wireframeThickness = material === activeMaterial ? 0.02 : 0.018;
+            const wireframe = createThickWireframe(position, wireframeColor, wireframeThickness);
+            scene.add(wireframe);
+            mesh.userData.wireframe = wireframe;
+            scene.add(mesh);
+            return mesh;
+        }
+
+        // Physics functions
+        function convertLockedVoxelsToPhysics() {
+            state.voxels.locked.forEach((mesh, key) => {
+                // Create rigid body for this voxel
+                const rigidBodyDesc = RAPIER.RigidBodyDesc.dynamic()
+                    .setTranslation(mesh.position.x, mesh.position.y, mesh.position.z);
+                const rigidBody = world.createRigidBody(rigidBodyDesc);
+                
+                // Create collider
+                const colliderDesc = RAPIER.ColliderDesc.cuboid(voxelSize / 2, voxelSize / 2, voxelSize / 2)
+                    .setRestitution(0.3)
+                    .setFriction(0.5)
+                    .setDensity(1.0);
+                world.createCollider(colliderDesc, rigidBody);
+                
+                // Store reference
+                mesh.userData.rigidBody = rigidBody;
+                state.physicsVoxels.set(mesh, rigidBody);
+            });
+            
+            state.voxels.locked.clear();
+            updateBlockCount();
+        }
+
+        function convertPhysicsVoxelsToLocked() {
+            state.physicsVoxels.forEach((rigidBody, mesh) => {
+                // Remove rigid body from physics world
+                world.removeRigidBody(rigidBody);
+                mesh.userData.rigidBody = null;
+                
+                // Convert back to locked voxel at current position
+                const voxel = worldToVoxel(mesh.position);
+                const key = getVoxelKey(voxel.x, voxel.y, voxel.z);
+                
+                // Snap to grid
+                mesh.position.copy(voxelToWorld(voxel));
+                mesh.rotation.set(0, 0, 0);
+                
+                state.voxels.locked.set(key, mesh);
+            });
+            
+            state.physicsVoxels.clear();
+            updateBlockCount();
+        }
+
+        // Raycast-based collision detection for destroy mode
+        function updateFingerRaycasts(results) {
+            state.fingerRaycasts = [];
+            
+            if (!results?.multiHandLandmarks?.length || state.mode !== 'destroy') {
+                state.lastHitVoxels = [null, null];
+                return;
+            }
+            
+            // Create raycast for each index finger tip
+            results.multiHandLandmarks.forEach((landmarks, handIndex) => {
+                if (landmarks?.[8]) {
+                    const indexTip = landmarks[8];
+                    const screenX = (1 - indexTip.x) * 2 - 1;
+                    const screenY = -(indexTip.y * 2 - 1);
+                    
+                    const raycaster = new THREE.Raycaster();
+                    raycaster.setFromCamera(new THREE.Vector2(screenX, screenY), camera);
+                    
+                    state.fingerRaycasts.push({
+                        raycaster: raycaster,
+                        handIndex: handIndex,
+                        screenPos: { x: screenX, y: screenY }
+                    });
+                }
+            });
+        }
+
+        // Hover management
+        function clearHoverState(handIndex) {
+            const h = state.hover[handIndex];
+            if (h.block && h.material) {
+                h.block.material = h.material;
+                if (h.block.userData.wireframe) h.block.userData.wireframe.visible = true;
+                h.material = null;
+            }
+            if (h.wireframe) { scene.remove(h.wireframe); h.wireframe = null; }
+            h.block = null;
+        }
+
+        function updateHoverState(raycaster, handIndex) {
+            clearHoverState(handIndex);
+            const lockedMeshes = Array.from(state.voxels.locked.values());
+            if (lockedMeshes.length === 0) return null;
+            const intersects = raycaster.intersectObjects(lockedMeshes, false);
+            if (intersects.length > 0) {
+                intersects.sort((a, b) => a.distance - b.distance);
+                const mesh = intersects[0].object;
+                const otherHandBlock = state.hover[1 - handIndex].block;
+                if (mesh === otherHandBlock) return mesh.position;
+                state.hover[handIndex].block = mesh;
+                state.hover[handIndex].material = mesh.material;
+                mesh.material = hoveredMaterial;
+                if (mesh.userData.wireframe) mesh.userData.wireframe.visible = false;
+                state.hover[handIndex].wireframe = createThickWireframe(mesh.position, 0xffffff, 0.022);
+                scene.add(state.hover[handIndex].wireframe);
+                return mesh.position;
+            }
+            return null;
+        }
+
+        // Pinch detection
+        function isPinchingHand(landmarks, handIndex) {
+            if (!landmarks?.[4] || !landmarks?.[8]) return false;
+            const dx = landmarks[4].x - landmarks[8].x, dy = landmarks[4].y - landmarks[8].y, dz = landmarks[4].z - landmarks[8].z;
+            const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+            const threshold = state.pinch.states[handIndex] ? CONSTANTS.PINCH_EXIT : CONSTANTS.PINCH_ENTER;
+            state.pinch.states[handIndex] = distance < threshold;
+            return state.pinch.states[handIndex];
+        }
+
+        // Voxel operations
+        function isAdjacentToExisting(voxel) {
+            const offsets = [{ x: 1, y: 0, z: 0 }, { x: -1, y: 0, z: 0 }, { x: 0, y: 1, z: 0 }, { x: 0, y: -1, z: 0 }, { x: 0, y: 0, z: 1 }, { x: 0, y: 0, z: -1 }];
+            return offsets.some(o => {
+                const key = getVoxelKey(voxel.x + o.x, voxel.y + o.y, voxel.z + o.z);
+                return state.voxels.locked.has(key) || state.voxels.active.has(key);
+            });
+        }
+
+        function addActiveVoxel(position, intersectionNormal = null) {
+            let targetPos = position.clone();
+            if (intersectionNormal && state.voxels.locked.size > 0) {
+                const faceDir = new THREE.Vector3(Math.round(intersectionNormal.x), Math.round(intersectionNormal.y), Math.round(intersectionNormal.z));
+                targetPos.add(faceDir.multiplyScalar(voxelSize));
+            }
+            const voxel = worldToVoxel(targetPos);
+            const key = getVoxelKey(voxel.x, voxel.y, voxel.z);
+            if (!state.voxels.locked.has(key) && !state.voxels.active.has(key)) {
+                if (state.voxels.locked.size > 0) {
+                    if (state.voxels.active.size === 0) {
+                        if (!isAdjacentToExisting(voxel)) return;
+                    } else {
+                        const lastKey = state.stroke[state.stroke.length - 1];
+                        const lastVoxel = lastKey.split(',').map(Number);
+                        const lastVoxelCoords = { x: lastVoxel[0], y: lastVoxel[1], z: lastVoxel[2] };
+                        
+                        const delta = {
+                            x: voxel.x - lastVoxelCoords.x,
+                            y: voxel.y - lastVoxelCoords.y,
+                            z: voxel.z - lastVoxelCoords.z
+                        };
+                        
+                        const isValidExtrusion = 
+                            (state.axis.locked === 'x' && Math.abs(delta.x) === 1 && delta.y === 0 && delta.z === 0) ||
+                            (state.axis.locked === 'y' && Math.abs(delta.y) === 1 && delta.x === 0 && delta.z === 0) ||
+                            (state.axis.locked === 'z' && Math.abs(delta.z) === 1 && delta.x === 0 && delta.y === 0);
+                        
+                        if (!isValidExtrusion) return;
+                    }
+                }
+                
+                const worldPos = voxelToWorld(voxel);
+                const mesh = createVoxel(worldPos, activeMaterial);
+                state.voxels.active.set(key, mesh);
+                state.stroke.push(key);
+                updateBlockCount();
+            }
+        }
+
+        function removeActiveVoxel(position) {
+            const voxel = worldToVoxel(position);
+            const key = getVoxelKey(voxel.x, voxel.y, voxel.z);
+            if (state.voxels.active.has(key) && state.stroke.includes(key)) {
+                const mesh = state.voxels.active.get(key);
+                if (mesh.userData.wireframe) scene.remove(mesh.userData.wireframe);
+                scene.remove(mesh);
+                state.voxels.active.delete(key);
+                state.stroke.splice(state.stroke.indexOf(key), 1);
+                updateBlockCount();
+            }
+        }
+
+        function clearActiveBlocks() {
+            state.voxels.active.forEach(mesh => {
+                if (mesh.userData.wireframe) scene.remove(mesh.userData.wireframe);
+                scene.remove(mesh);
+            });
+            state.voxels.active.clear();
+            state.stroke = [];
+            updateBlockCount();
+        }
+
+        function lockActiveVoxels() {
+            state.stroke.forEach(key => {
+                const mesh = state.voxels.active.get(key);
+                if (mesh) {
+                    if (mesh.userData.wireframe) scene.remove(mesh.userData.wireframe);
+                    scene.remove(mesh);
+                    const lockedMesh = createVoxel(mesh.position.clone(), lockedMaterial);
+                    state.voxels.locked.set(key, lockedMesh);
+                }
+            });
+            state.voxels.active.clear();
+            state.stroke = [];
+            updateBlockCount();
+        }
+
+        function applyAxisLockStrict(position, lockedAxis, referencePosition) {
+            if (!lockedAxis || !referencePosition) return position;
+            const locked = position.clone();
+            ['x', 'y', 'z'].forEach(axis => { if (axis !== lockedAxis) locked[axis] = referencePosition[axis]; });
+            return locked;
+        }
+
+        function isMovingBackwards(currentPos, lastPos, startPos, axis) {
+            if (!axis || !startPos || !lastPos) return false;
+            const forwardDirection = lastPos[axis] - startPos[axis];
+            const currentMovement = currentPos[axis] - lastPos[axis];
+            return (forwardDirection * currentMovement) < 0 && Math.abs(forwardDirection) > 0.1;
+        }
+
+        function updateCameraOrbit() {
+            const { theta, phi } = state.orbit.angle;
+            const { x, y, z } = state.orbit.center;
+            const r = state.orbit.radius;
+            camera.position.set(x + r * Math.sin(phi) * Math.cos(theta), y + r * Math.cos(phi), z + r * Math.sin(phi) * Math.sin(theta));
+            camera.lookAt(state.orbit.center);
+        }
+
+        // ============ MediaPipe Hands Setup ============
+        const videoElement = document.getElementById('videoElement');
+        const hands = new Hands({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
+        hands.setOptions({ maxNumHands: 2, modelComplexity: 1, minDetectionConfidence: 0.7, minTrackingConfidence: 0.7 });
+
+        hands.onResults(results => {
+            try {
+                // Update finger raycasts for destroy mode
+                updateFingerRaycasts(results);
+                
+                // Check for button interaction with any visible hand
+                if (results?.multiHandLandmarks?.length) {
+                    // Use the first hand for button interaction
+                    updateButtonInteraction(results.multiHandLandmarks[0]);
+                } else {
+                    updateButtonInteraction(null);
+                }
+                
+                if (!results?.multiHandLandmarks?.length) {
+                    state.orbit.active = state.orbit.lastActive = false;
+                    state.orbit.lastCenter = null;
+                    state.hover.forEach((_, i) => clearHoverState(i));
+                    state.pinch.activeHandIndex = -1;
+                    state.pinch.states = [false, false];
+                    updateStatus(state.mode === 'create' ? 'READY' : 'DESTROY MODE', state.mode === 'destroy' ? 'destroying' : 'ready');
+                    return;
+                }
+
+                const numHands = results.multiHandLandmarks.length;
+
+                // Two-hand orbit mode (works in both modes)
+                if (numHands === 2) {
+                    const hand1Pinching = isPinchingHand(results.multiHandLandmarks[0], 0);
+                    const hand2Pinching = isPinchingHand(results.multiHandLandmarks[1], 1);
+                    state.orbit.active = hand1Pinching && hand2Pinching;
+
+                    if (state.orbit.active) {
+                        const h1 = results.multiHandLandmarks[0][8], h2 = results.multiHandLandmarks[1][8];
+                        if (!h1 || !h2) { state.orbit.active = false; return; }
+                        const centerX = (h1.x + h2.x) / 2, centerY = (h1.y + h2.y) / 2;
+
+                        if (!state.orbit.lastActive) {
+                            clearActiveBlocks();
+                            Object.assign(state.axis, { locked: null, strokeStart: null, firstVoxel: null });
+                            state.pinch.activeHandIndex = -1;
+                            state.orbit.lastCenter = { x: centerX, y: centerY };
+                            const dx = camera.position.x - state.orbit.center.x, dy = camera.position.y - state.orbit.center.y, dz = camera.position.z - state.orbit.center.z;
+                            state.orbit.radius = Math.sqrt(dx * dx + dy * dy + dz * dz);
+                            state.orbit.angle.theta = Math.atan2(dz, dx);
+                            state.orbit.angle.phi = Math.acos(dy / state.orbit.radius);
+                        } else if (state.orbit.lastCenter) {
+                            const deltaX = (centerX - state.orbit.lastCenter.x) * 5, deltaY = (centerY - state.orbit.lastCenter.y) * 5;
+                            state.orbit.angle.theta -= deltaX;
+                            state.orbit.angle.phi = Math.max(0.1, Math.min(Math.PI - 0.1, state.orbit.angle.phi - deltaY));
+                            updateCameraOrbit();
+                            state.orbit.lastCenter = { x: centerX, y: centerY };
+                        }
+                        updateStatus('ORBITING', 'orbiting');
+                        state.orbit.lastActive = true;
+                        return;
+                    } else if (state.orbit.lastActive && !state.orbit.active) {
+                        state.orbit.cooldownUntil = Date.now() + CONSTANTS.ORBIT_COOLDOWN;
+                    }
+                }
+
+                state.orbit.active = state.orbit.lastActive = false;
+                state.orbit.lastCenter = null;
+
+                // Skip create mode logic if in destroy mode
+                if (state.mode === 'destroy') {
+                    updateStatus('DESTROY MODE', 'destroying');
+                    return;
+                }
+
+                // Hover detection (CREATE mode only)
+                if (state.pinch.activeHandIndex === -1) {
+                    for (let handIdx = 0; handIdx < Math.min(numHands, 2); handIdx++) {
+                        const landmarks = results.multiHandLandmarks[handIdx];
+                        if (landmarks?.[8]) {
+                            const indexTip = landmarks[8];
+                            const screenX = (1 - indexTip.x) * 2 - 1, screenY = -(indexTip.y * 2 - 1);
+                            const raycaster = new THREE.Raycaster();
+                            raycaster.setFromCamera(new THREE.Vector2(screenX, screenY), camera);
+                            updateHoverState(raycaster, handIdx);
+                        }
+                    }
+                } else {
+                    state.hover.forEach((_, i) => clearHoverState(i));
+                }
+
+                // Single-hand pinch detection (CREATE mode only)
+                let pinchingHandIndex = -1;
+                if (state.pinch.activeHandIndex !== -1) {
+                    if (state.pinch.activeHandIndex < numHands && results.multiHandLandmarks[state.pinch.activeHandIndex] && 
+                        isPinchingHand(results.multiHandLandmarks[state.pinch.activeHandIndex], state.pinch.activeHandIndex)) {
+                        pinchingHandIndex = state.pinch.activeHandIndex;
+                    }
+                } else {
+                    for (let i = 0; i < numHands; i++) {
+                        if (results.multiHandLandmarks[i] && isPinchingHand(results.multiHandLandmarks[i], i)) {
+                            pinchingHandIndex = i;
+                            state.pinch.activeHandIndex = i;
+                            break;
+                        }
+                    }
+                }
+
+                if (pinchingHandIndex === -1) {
+                    state.pinch.current = false;
+                    updateStatus('READY');
+                    if (state.pinch.last) {
+                        if (state.stroke.length > 0) lockActiveVoxels();
+                        Object.assign(state.axis, { locked: null, strokeStart: null, firstVoxel: null });
+                        state.pinch.activeHandIndex = -1;
+                    }
+                    state.pinch.last = false;
+                    return;
+                }
+
+                state.pinch.current = true;
+                const landmarks = results.multiHandLandmarks[pinchingHandIndex];
+                const indexTip = landmarks[8];
+                const screenX = (1 - indexTip.x) * 2 - 1, screenY = -(indexTip.y * 2 - 1);
+                const raycaster = new THREE.Raycaster();
+                raycaster.setFromCamera(new THREE.Vector2(screenX, screenY), camera);
+
+                const inCooldown = Date.now() < state.orbit.cooldownUntil;
+
+                const planeDistance = 5;
+                const rawPosition = new THREE.Vector3().copy(raycaster.ray.origin).add(raycaster.ray.direction.clone().multiplyScalar(planeDistance));
+                if (!state.pinch.last && state.pinch.current) {
+                    state.hand.smoothed.copy(rawPosition);
+                } else {
+                    const alpha = CONSTANTS.SMOOTHING;
+                    state.hand.smoothed.x = alpha * rawPosition.x + (1 - alpha) * state.hand.smoothed.x;
+                    state.hand.smoothed.y = alpha * rawPosition.y + (1 - alpha) * state.hand.smoothed.y;
+                    state.hand.smoothed.z = alpha * rawPosition.z + (1 - alpha) * state.hand.smoothed.z;
+                }
+                state.hand.position.copy(state.voxels.locked.size === 0 ? state.hand.smoothed : rawPosition);
+
+                // ============ 3D AXIS LOGIC REPLACEMENT ============
+                if (state.pinch.current && !inCooldown) {
+                    if (!state.pinch.last) {
+                        // --- STROKE START ---
+                        state.axis.strokeStart = state.hand.position.clone();
+                        // Reset lock state
+                        state.axis.locked = null;
+                        state.axis.firstVoxel = null;
+                        
+                        // We don't need screenStart anymore
+                        state.hand.last.copy(state.hand.position);
+                        
+                        // If we started on an existing block (hovering), record it as the anchor
+                        // This allows for perfect extrusion from a face
+                        if (state.hover[pinchingHandIndex] && state.hover[pinchingHandIndex].block) {
+                            state.axis.firstVoxel = state.hover[pinchingHandIndex].block.position.clone();
+                        }
+                    } else {
+                        // --- STROKE CONTINUATION ---
+                        
+                        // 1. Determine Axis in 3D World Space (Camera Independent)
+                        if (!state.axis.locked) {
+                            // Calculate the vector from start to current hand position
+                            const delta = new THREE.Vector3().subVectors(state.hand.position, state.axis.strokeStart);
+                            const distance = delta.length();
+
+                            // Only lock if we've moved past the deadzone threshold
+                            if (distance > CONSTANTS.DIRECTION_THRESHOLD) {
+                                const absX = Math.abs(delta.x);
+                                const absY = Math.abs(delta.y);
+                                const absZ = Math.abs(delta.z);
+
+                                // Find the dominant axis of movement
+                                if (absX >= absY && absX >= absZ) {
+                                    state.axis.locked = 'x';
+                                } else if (absY >= absX && absY >= absZ) {
+                                    state.axis.locked = 'y';
+                                } else {
+                                    state.axis.locked = 'z';
+                                }
+                            }
+                        }
+
+                        // 2. Execute Voxel Logic if Axis is Locked
+                        if (state.axis.locked) {
+                            let constrainedPosition = state.hand.position.clone();
+                            const reference = state.axis.firstVoxel || state.axis.strokeStart;
+                            
+                            // Snap 3D position to the single locked axis
+                            constrainedPosition = applyAxisLockStrict(state.hand.position, state.axis.locked, reference);
+
+                            // Handle erasing (moving backwards)
+                            if (state.axis.firstVoxel && isMovingBackwards(constrainedPosition, state.hand.last, state.axis.firstVoxel, state.axis.locked)) {
+                                removeActiveVoxel(constrainedPosition);
+                                
+                                // Interpolate deletion to catch fast movements
+                                const step = voxelSize;
+                                const delta = constrainedPosition[state.axis.locked] - state.hand.last[state.axis.locked];
+                                const steps = Math.abs(delta / step);
+                                for (let i = 0; i < steps; i++) {
+                                    const interpolatedPos = state.hand.last.clone();
+                                    interpolatedPos[state.axis.locked] = state.hand.last[state.axis.locked] + delta * (i / steps);
+                                    removeActiveVoxel(interpolatedPos);
+                                }
+                            } 
+                            // Handle creation
+                            else {
+                                addActiveVoxel(constrainedPosition);
+                                
+                                // If this was a "air draw" (no starting block), set the first block as the new anchor
+                                if (!state.axis.firstVoxel && state.voxels.active.size >= 1 && state.stroke.length > 0) {
+                                    const firstMesh = state.voxels.active.get(state.stroke[0]);
+                                    if (firstMesh) state.axis.firstVoxel = firstMesh.position.clone();
+                                }
+                            }
+                            state.hand.last.copy(constrainedPosition);
+                        }
+                    }
+                    updateStatus('EDITING', 'editing');
+                } else {
+                    updateStatus('READY');
+                }
+
+                state.pinch.last = state.pinch.current;
+            } catch (error) {
+                console.error('Error in onHandResults:', error);
+                state.orbit.active = state.orbit.lastActive = false;
+                state.orbit.lastCenter = null;
+                updateStatus('ERROR');
+            }
+        });
+
+        // Camera stream
+        const cameraStream = new Camera(videoElement, {
+            onFrame: async () => { try { await hands.send({ image: videoElement }); } catch (e) { console.error('Frame error:', e); } },
+            width: 1920, height: 1080
+        });
+        cameraStream.start().catch(e => { console.error('Camera error:', e); updateStatus('ERROR'); });
+
+        // Animation loop with physics
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Step physics simulation
+            if (state.mode === 'destroy') {
+                world.step();
+                
+                // Check if we're in orbit cooldown
+                const inOrbitCooldown = Date.now() < state.orbit.cooldownUntil;
+                
+                // Apply impulse forces from raycast collisions (only if not orbiting and not in cooldown)
+                if (!state.orbit.active && !inOrbitCooldown) {
+                    state.fingerRaycasts.forEach(fingerData => {
+                        const { raycaster, handIndex } = fingerData;
+                        
+                        // Get all physics voxel meshes
+                        const voxelMeshes = Array.from(state.physicsVoxels.keys());
+                        if (voxelMeshes.length === 0) return;
+                        
+                        // Raycast to find intersecting voxels
+                        const intersects = raycaster.intersectObjects(voxelMeshes, false);
+                        
+                        if (intersects.length > 0) {
+                            // Get the closest voxel
+                            const intersection = intersects[0];
+                            const mesh = intersection.object;
+                            const rigidBody = state.physicsVoxels.get(mesh);
+                            
+                            if (!rigidBody) return;
+                            
+                            // Only apply force if this is a new hit (not the same voxel as last frame)
+                            if (state.lastHitVoxels[handIndex] !== mesh) {
+                                state.lastHitVoxels[handIndex] = mesh;
+                                
+                                // Calculate impulse direction from ray direction
+                                const impulseDir = raycaster.ray.direction.clone().normalize();
+                                
+                                // Apply impulse at the intersection point
+                                const forceMagnitude = CONSTANTS.COLLISION_FORCE_MULTIPLIER;
+                                const impulse = {
+                                    x: impulseDir.x * forceMagnitude,
+                                    y: impulseDir.y * forceMagnitude,
+                                    z: impulseDir.z * forceMagnitude
+                                };
+                                
+                                // Apply impulse at the hit point for more realistic physics
+                                const hitPoint = intersection.point;
+                                const voxelCenter = rigidBody.translation();
+                                const relativePoint = {
+                                    x: hitPoint.x - voxelCenter.x,
+                                    y: hitPoint.y - voxelCenter.y,
+                                    z: hitPoint.z - voxelCenter.z
+                                };
+                                
+                                rigidBody.applyImpulseAtPoint(impulse, relativePoint, true);
+                                
+                                // Add torque based on hit location for spinning
+                                const torqueMagnitude = forceMagnitude * 0.5;
+                                const torque = {
+                                    x: relativePoint.y * impulseDir.z * torqueMagnitude,
+                                    y: relativePoint.z * impulseDir.x * torqueMagnitude,
+                                    z: relativePoint.x * impulseDir.y * torqueMagnitude
+                                };
+                                rigidBody.applyTorqueImpulse(torque, true);
+                            }
+                        } else {
+                            // No intersection, clear last hit for this hand
+                            state.lastHitVoxels[handIndex] = null;
+                        }
+                    });
+                } else {
+                    // Clear last hit voxels when in cooldown or orbiting
+                    state.lastHitVoxels = [null, null];
+                }
+                
+                // Update mesh positions from rigid bodies
+                state.physicsVoxels.forEach((rigidBody, mesh) => {
+                    const position = rigidBody.translation();
+                    mesh.position.set(position.x, position.y, position.z);
+                    
+                    const rotation = rigidBody.rotation();
+                    mesh.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w);
+                    
+                    // Update wireframe
+                    if (mesh.userData.wireframe) {
+                        mesh.userData.wireframe.position.copy(mesh.position);
+                        mesh.userData.wireframe.quaternion.copy(mesh.quaternion);
+                    }
+                    
+                    // Remove voxels that fall too far
+                    if (position.y < -10) {
+                        scene.remove(mesh);
+                        if (mesh.userData.wireframe) scene.remove(mesh.userData.wireframe);
+                        world.removeRigidBody(rigidBody);
+                        state.physicsVoxels.delete(mesh);
+                        updateBlockCount();
+                    }
+                });
+            }
+            
+            const time = Date.now() * 0.003;
+            state.voxels.active.forEach(mesh => { mesh.material.emissiveIntensity = 2.2 + Math.sin(time * 3) * 0.8; });
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        animate();
+        updateStatus('READY');
+    </script>
+</body>
+</html>

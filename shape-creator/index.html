@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MediaPipe / Three.js Shape Creator</title>
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Primary Meta Tags -->
+  <meta name="title" content="Shape Creator Tutorial">
+  <meta name="description" content="create/control 3D shapes with hand gestures">
+
+</head>
+
+<div id="ui">
+  <div class="ui-title">Gesture-based 3D Playground</div>
+  <div class="ui-subtitle">
+    Interactive demo: control 3D shapes with hand gestures
+  </div>
+
+  <div class="ui-buttons">
+    <button id="startBtn">Start camera</button>
+    <button id="stopBtn">Stop</button>
+  </div>
+
+  <div class="ui-hint">
+    <b>How to play</b><br />
+    – Show your hand to the camera<br />
+    – Pinch fingers to grab a shape<br />
+    – Move hand to move the shape<br />
+    – Use two hands to create & scale
+  </div>
+
+  <div id="uiStatus" class="ui-status">Status: ready</div>
+</div>
+
+<body>
+
+  <video id="webcam" autoplay muted playsinline></video>
+  <canvas id="canvas"></canvas>
+  <div id="three-canvas"></div>
+  <img id="recycle-bin" src="recyclebin.png" alt="Recycle Bin" />
+  <div id="instructions">
+    Bring hands close and pinch to create a shape<br>
+     > Move hands apart to make the shape larger<br>
+    Hover over a shape / pinch to move it<br>
+    Move a shape into the recycle bin to delete it
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+</body>
+
+<script src="main.js"></script>
+
+</html>
